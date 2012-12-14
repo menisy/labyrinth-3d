@@ -1,12 +1,18 @@
 #include "GLUT/glut.h"
 #include <iostream>
+#include <stdio.h>
 
 /* ################################ HEADERS ######################## */
 #define PI 3.14159265
+#define MAX_PITCH 15
+#define MAX_ROLL 15
+#define WINDOW_W 800
+#define WINDOW_H 600
+
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
+void myMouse(int,int);
 void display();
-
 
 /* ############################## HEADER END ######################## */
 
@@ -15,13 +21,30 @@ float camera_x = 0.0;
 float camera_y = 0.0;
 float camera_z = 0.0;
 
+struct Platform{
+    float width;
+    float roll;
+    float pitch;
+    
+    void draw(){
+        glPushMatrix(); // platform
+        glRotatef(roll*MAX_ROLL, 0.0, 0.0, 1.0);
+        glRotatef(pitch*MAX_PITCH, 1.0, 0.0, 0.0);
+        glScaled(width, 1, width);
+        glutSolidCube(1);
+        glPopMatrix(); // end platform
+
+    }
+    
+}platform = {15, 0.0, 0.0};
+
 void display(void)
 {
     glMatrixMode(GL_PROJECTION); // set the view volume shape
     glLoadIdentity();
     gluPerspective(140, //Field of view
                    800.0/600.0, //Aspect ratio
-                   0.9, // Z near
+                   0.1, // Z near
                    100.0);// Z far
     
     double factor = 1;
@@ -42,7 +65,7 @@ void display(void)
     glPushMatrix(); // everything
     
     glutWireCube(30);
-    glutSolidCube(5);
+    platform.draw();
     
     
     glPopMatrix(); // end everything
@@ -62,13 +85,14 @@ int main(int argc, char **argv)
     glutCreateWindow("Transformation testbed - wireframes");
     glutDisplayFunc(display);
     
-    GLfloat light_diffuse[] = {1.0, 1.0, 1.0};
-    float light_position[] = {10.0, 10.5, 10.5, 0.0};
+    GLfloat light_diffuse[] = {0.5, 0.5, 0.5};
+//    float light_position[] = {10.0, 10.5, 10.5, 0.0};
     
     
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_diffuse);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    
+//    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+//    glShadeModel(GL_SMOOTH);
+//    
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHTING);
     
@@ -78,9 +102,11 @@ int main(int argc, char **argv)
     //    glDepthRange(0.0f, 1.0f);
     
     glutKeyboardFunc(myKeyboard);
+    glutPassiveMotionFunc(myMouse);
     glClearColor(1.0f, 1.0f, 1.0f,0.0f); // background is white
 	glutIdleFunc(anim);
     glViewport(0, 0, 800, 600);
+
     
     glutMainLoop();
 }
@@ -115,6 +141,15 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             break;
             
     }
+}
+
+void myMouse(int x, int y){
+//    printf("%.3d, %.3d\n", x,y);
+    float temp_w = WINDOW_W/2;
+    float temp_h = WINDOW_H/2;
+    platform.roll = (temp_w-x)/temp_w;
+    platform.pitch = (temp_h-y)/temp_h;
+    
 }
 
 void anim(){
