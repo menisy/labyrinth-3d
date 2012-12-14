@@ -4,6 +4,7 @@
 
 /* ################################ HEADERS ######################## */
 #define PI 3.14159265
+#define gravity 5
 #define MAX_PITCH 15
 #define MAX_ROLL 15
 #define WINDOW_W 1024
@@ -39,6 +40,23 @@ struct Platform{
     
 }platform = {40, 0.0, 0.0};
 
+
+struct Ball{
+    double x,y,z;
+    double rad;
+    
+    void draw(){
+        glPushMatrix(); // start ball
+        glColor3f(0.0, 0.0, 1);
+        glTranslated(x, y + rad + 0.5, z);
+        GLUquadricObj * qobj;
+        qobj = gluNewQuadric();
+        gluQuadricDrawStyle(qobj,GLU_FILL);
+        gluSphere(qobj, rad, 20, 10);
+        glPopMatrix(); // end ball
+    }
+}ball = {0.0, 0.0, 0.0, 1.0};
+
 void display(void)
 {
     glMatrixMode(GL_PROJECTION); // set the view volume shape
@@ -68,6 +86,7 @@ void display(void)
     glColor3f(0.0,0,0);
     glutWireCube(50);
     platform.draw();
+    ball.draw();
     
     
     glPopMatrix(); // end everything
