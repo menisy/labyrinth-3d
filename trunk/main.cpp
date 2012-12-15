@@ -214,18 +214,6 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             camera_z -= 5;
             camera_z= (int)camera_z %360;
             break;
-        case 'a':
-            ball.x -= 0.5;
-            break;
-        case 'd':
-            ball.x += 0.5;
-            break;
-        case 'w':
-            ball.z -= 0.5;
-            break;
-        case 's':
-            ball.z += 0.5;
-            break;
     }
 }
 
