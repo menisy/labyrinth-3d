@@ -20,8 +20,25 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
 void myMouse(int,int);
 void display();
 
+struct Ball;
+struct Block;
+struct Platform;
+struct Point;
 /* ############################## HEADER END ######################## */
-
+/**
+ 
+ Notes on the world:
+ The platform surface (when horizontal) is at y=0. So anything you want to draw
+ on the surface should be drawn without translation. 
+ 
+ in platform draw, there is a matrix with a comment "World", this means
+ platoform and blocks on the platform. Not sure if it's the best design though,
+ but it will work fine for platforms + array of blocks.
+ 
+ The ball is indepedent. Gravity, Friction, Elasticity affects it in the update 
+ method.
+ 
+ */
 float camera_x = -20.0;
 float camera_y = 0.0;
 float camera_z = 0.0;
@@ -32,13 +49,20 @@ struct Platform{
     float pitch;
     
     void draw(){
-        glPushMatrix(); // platform
-        glColor3f(0.9,0,0);
+        glPushMatrix(); // world
         glRotatef(roll, 0.0, 0.0, -1.0);
         glRotatef(pitch, 1.0, 0.0, 0.0);
+        
+        glPushMatrix(); // platform
+        
         glScaled(width, 1, width);
+        glTranslated(0, -0.5, 0);
+        glColor3f(0.9,0,0);
         glutSolidCube(1);
+        
         glPopMatrix(); // end platform
+        
+        glPopMatrix(); // end world
     }
     
     float get_y(float x, float z){
@@ -61,16 +85,12 @@ struct Ball{
     double delta_x, delta_y, delta_z;
     
     void update(Platform p){
-//        printf("sin(%.3f)=%.3f, sin(%.3f)=%.3f\n", p.roll, sin(p.roll * PI/180.0), p.pitch, sin(p.pitch * PI/180.0));
-        
 
         // f = m*a; a = f/m;
         double acc_x = GRAV * sin(p.roll * PI/180)/weight;
         double acc_y = -1 * GRAV * cos(p.roll * PI/180)/weight;
         acc_y += -1 * GRAV * cos(p.pitch * PI/180)/weight;
         double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
-//        printf("acc_x=%.3f, acc_y=%.3f\n", acc_x, acc_z);
-//        printf("delta_x=%.3f, delta_z=%.3f, delta_y=%.3f\n", delta_x, delta_z, delta_y);
         
         delta_x += acc_x;
         delta_y += acc_y;
@@ -79,6 +99,9 @@ struct Ball{
         acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
         acc_z = acc_z > 0? acc_z - FRICTION*weight : acc_z + FRICTION*weight;
         
+        
+        // Collision detection
+        // platform
         
         if (x + delta_x < 20 && x + delta_x > -20){
             x += delta_x;
@@ -98,19 +121,22 @@ struct Ball{
         }else{
             delta_z = -1 * ELASTICITY * delta_z;
         }
+        // end platform
+        
     }
     
     void draw(){
         glPushMatrix(); // start ball
         glColor3f(0.0, 0.0, 1);
-        glTranslated(x, y + rad + 0.5, z);
+        glTranslated(x, y + rad, z);
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
         gluQuadricDrawStyle(qobj,GLU_FILL);
         gluSphere(qobj, rad, 20, 10);
         glPopMatrix(); // end ball
     }
-}ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0};
+};
+Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0};
 
 void display(void)
 {
@@ -140,6 +166,7 @@ void display(void)
     
     glColor3f(0.0,0,0);
     glutWireCube(50);
+    
     platform.draw();
     ball.draw();
     
@@ -147,7 +174,6 @@ void display(void)
     glPopMatrix(); // end everything
     glFlush();
 }
-
 
 //<<<<<<<<<<<<<<<<<<<<<< main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 int main(int argc, char **argv)
@@ -220,6 +246,17 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
 void myMouse(int x, int y){
     float temp_w = WINDOW_W/2;
     float temp_h = WINDOW_H/2;
+    if (x > WINDOW_W)
+        x = WINDOW_W;
+    
+    if (x < 0)
+        x = 0;
+    
+    if (y > WINDOW_H)
+        y = WINDOW_H;
+    
+    if (y < 0)
+        y = 0;
     platform.roll = (x-temp_w)/temp_w * MAX_ROLL;
     platform.pitch = (temp_h-y)/temp_h * MAX_PITCH;
 //    printf("%.3f, %.3f\n", platform.roll, platform.pitch);
