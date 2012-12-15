@@ -12,7 +12,7 @@ using namespace std;
 #define MAX_ROLL 15
 #define WINDOW_W 800
 #define WINDOW_H 600
-#define ELASTICITY 0.1
+#define ELASTICITY 0.2// max 1.0
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -20,7 +20,6 @@ void myMouse(int,int);
 void display();
 
 /* ############################## HEADER END ######################## */
-
 
 float camera_x = 0.0;
 float camera_y = 0.0;
@@ -41,6 +40,16 @@ struct Platform{
         glPopMatrix(); // end platform
     }
     
+    float get_y(float x, float z){
+        float y = 0.0;
+        
+        // diff due to roll
+        y -= sin(roll * PI / 180.0) * x;
+        y -= sin(pitch * PI / 180.0) * z;
+        return y;
+
+    }
+    
 }platform = {40, 0.0, 0.0};
 
 
@@ -57,21 +66,31 @@ struct Ball{
 
         // f = m*a; a = f/m;
         double acc_x = GRAV * sin(p.roll * PI/180)/weight;
+        double acc_y = -1 * GRAV * cos(p.roll * PI/180)/weight;
+        acc_y += -1 * GRAV * cos(p.pitch * PI/180)/weight;
         double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
-        printf("acc_x=%.3f, acc_y=%.3f\n", acc_x, acc_z);
-        printf("delta_x=%.3f, delta_z=%.3f\n", delta_x, delta_z);
+//        printf("acc_x=%.3f, acc_y=%.3f\n", acc_x, acc_z);
+//        printf("delta_x=%.3f, delta_z=%.3f, delta_y=%.3f\n", delta_x, delta_z, delta_y);
         
         delta_x += acc_x;
+        delta_y += acc_y;
         delta_z += acc_z;
         
-        delta_x = delta_x > 0? delta_x - friction : delta_x + friction;
-        delta_y = delta_y > 0? delta_y - friction : delta_y + friction;
+        acc_x = acc_x > 0? acc_x - friction*weight : acc_x + friction*weight;
+        acc_z = acc_z > 0? acc_z - friction*weight : acc_z + friction*weight;
         
         
         if (x + delta_x < 20 && x + delta_x > -20){
             x += delta_x;
         }else{
             delta_x = -1 * ELASTICITY * delta_x;
+        }
+        
+        if (y + delta_y > p.get_y(x,z)){
+            y += delta_y;
+        }else{
+            delta_y = -1 * ELASTICITY * delta_y;
+            y = p.get_y(x,z);
         }
         
         if (z + delta_z < 20 && z+delta_z > -20){
@@ -91,7 +110,7 @@ struct Ball{
         gluSphere(qobj, rad, 20, 10);
         glPopMatrix(); // end ball
     }
-}ball = {1.0, 0.0, 5.0, 0.0, 1.0, 1.0};
+}ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0};
 
 void display(void)
 {
