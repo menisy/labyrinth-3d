@@ -13,6 +13,7 @@ using namespace std;
 #define WINDOW_W 800
 #define WINDOW_H 600
 #define ELASTICITY 0.2// max 1.0
+#define FRICTION 1.0
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -21,7 +22,7 @@ void display();
 
 /* ############################## HEADER END ######################## */
 
-float camera_x = 0.0;
+float camera_x = -20.0;
 float camera_y = 0.0;
 float camera_z = 0.0;
 
@@ -58,7 +59,6 @@ struct Ball{
     double x,y,z;
     double rad;
     double delta_x, delta_y, delta_z;
-    double friction;
     
     void update(Platform p){
 //        printf("sin(%.3f)=%.3f, sin(%.3f)=%.3f\n", p.roll, sin(p.roll * PI/180.0), p.pitch, sin(p.pitch * PI/180.0));
@@ -76,8 +76,8 @@ struct Ball{
         delta_y += acc_y;
         delta_z += acc_z;
         
-        acc_x = acc_x > 0? acc_x - friction*weight : acc_x + friction*weight;
-        acc_z = acc_z > 0? acc_z - friction*weight : acc_z + friction*weight;
+        acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
+        acc_z = acc_z > 0? acc_z - FRICTION*weight : acc_z + FRICTION*weight;
         
         
         if (x + delta_x < 20 && x + delta_x > -20){
@@ -110,7 +110,7 @@ struct Ball{
         gluSphere(qobj, rad, 20, 10);
         glPopMatrix(); // end ball
     }
-}ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0};
+}ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0};
 
 void display(void)
 {
