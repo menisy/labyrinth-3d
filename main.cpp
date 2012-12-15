@@ -43,6 +43,21 @@ float camera_x = -20.0;
 float camera_y = 0.0;
 float camera_z = 0.0;
 
+struct Point{
+    float x,y,z;
+};
+
+struct Block{
+    Point *front, *back;
+    
+    void init(float xc, float yc, float widht, short orient){
+        int dx[] = {1,1,-1,-1};
+        int dy[] = {1,-1,1,-1};
+        
+        for (int i = 0; i < 4; i++){
+        }
+    }
+};
 struct Platform{
     float width;
     float roll;
@@ -72,7 +87,6 @@ struct Platform{
         y -= sin(roll * PI / 180.0) * x;
         y -= sin(pitch * PI / 180.0) * z;
         return y;
-
     }
     
 }platform = {40, 0.0, 0.0};
@@ -162,6 +176,11 @@ void display(void)
     glRotatef(camera_z, 0.0, 0.0, 1.0);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    float pos[] = {200,200,0};
+    float dif[] = {.3,.3,.3,3};
+    glLightfv(GL_LIGHT0,GL_DIFFUSE,dif);
+    glLightfv(GL_LIGHT0,GL_POSITION,pos);
+    
     glPushMatrix(); // everything
     
     glColor3f(0.0,0,0);
@@ -169,7 +188,6 @@ void display(void)
     
     platform.draw();
     ball.draw();
-    
     
     glPopMatrix(); // end everything
     glFlush();
@@ -198,10 +216,12 @@ int main(int argc, char **argv)
 //    glEnable(GL_LIGHT0);
 //    glEnable(GL_LIGHTING);
     
+
     glEnable(GL_DEPTH_TEST);
-    //    glDepthMask(GL_TRUE);
-    //    glDepthFunc(GL_LEQUAL);
-    //    glDepthRange(0.0f, 1.0f);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_COLOR_MATERIAL);
     
     glutKeyboardFunc(myKeyboard);
     glutPassiveMotionFunc(myMouse);
