@@ -1,14 +1,18 @@
 #include "GLUT/glut.h"
 #include <iostream>
 #include <stdio.h>
+#include <math.h>
+
+using namespace std;
 
 /* ################################ HEADERS ######################## */
 #define PI 3.14159265
-#define gravity 5
+#define GRAV 0.01
 #define MAX_PITCH 15
 #define MAX_ROLL 15
-#define WINDOW_W 1024
-#define WINDOW_H 768
+#define WINDOW_W 800
+#define WINDOW_H 600
+#define ELASTICITY 0.1
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -30,20 +34,52 @@ struct Platform{
     void draw(){
         glPushMatrix(); // platform
         glColor3f(0.9,0,0);
-        glRotatef(roll*MAX_ROLL, 0.0, 0.0, 1.0);
-        glRotatef(pitch*MAX_PITCH, 1.0, 0.0, 0.0);
+        glRotatef(roll, 0.0, 0.0, -1.0);
+        glRotatef(pitch, 1.0, 0.0, 0.0);
         glScaled(width, 1, width);
         glutSolidCube(1);
         glPopMatrix(); // end platform
-
     }
     
 }platform = {40, 0.0, 0.0};
 
 
 struct Ball{
+    double weight;
     double x,y,z;
     double rad;
+    double delta_x, delta_y, delta_z;
+    double friction;
+    
+    void update(Platform p){
+//        printf("sin(%.3f)=%.3f, sin(%.3f)=%.3f\n", p.roll, sin(p.roll * PI/180.0), p.pitch, sin(p.pitch * PI/180.0));
+        
+
+        // f = m*a; a = f/m;
+        double acc_x = GRAV * sin(p.roll * PI/180)/weight;
+        double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
+        printf("acc_x=%.3f, acc_y=%.3f\n", acc_x, acc_z);
+        printf("delta_x=%.3f, delta_z=%.3f\n", delta_x, delta_z);
+        
+        delta_x += acc_x;
+        delta_z += acc_z;
+        
+        delta_x = delta_x > 0? delta_x - friction : delta_x + friction;
+        delta_y = delta_y > 0? delta_y - friction : delta_y + friction;
+        
+        
+        if (x + delta_x < 20 && x + delta_x > -20){
+            x += delta_x;
+        }else{
+            delta_x = -1 * ELASTICITY * delta_x;
+        }
+        
+        if (z + delta_z < 20 && z+delta_z > -20){
+            z += delta_z;
+        }else{
+            delta_z = -1 * ELASTICITY * delta_z;
+        }
+    }
     
     void draw(){
         glPushMatrix(); // start ball
@@ -55,7 +91,7 @@ struct Ball{
         gluSphere(qobj, rad, 20, 10);
         glPopMatrix(); // end ball
     }
-}ball = {0.0, 0.0, 0.0, 1.0};
+}ball = {1.0, 0.0, 5.0, 0.0, 1.0, 1.0};
 
 void display(void)
 {
@@ -102,7 +138,7 @@ int main(int argc, char **argv)
     
     glutInitWindowSize(WINDOW_W, WINDOW_H);
     
-    glutInitWindowPosition(100, 100);
+    glutInitWindowPosition(0, 0);
     glutCreateWindow("Transformation testbed - wireframes");
     glutDisplayFunc(display);
     
@@ -126,7 +162,7 @@ int main(int argc, char **argv)
     glutPassiveMotionFunc(myMouse);
     glClearColor(1.0f, 1.0f, 1.0f,0.0f); // background is white
 	glutIdleFunc(anim);
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, WINDOW_H, WINDOW_W);
 
     glutMainLoop();
 }
@@ -159,18 +195,30 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             camera_z -= 5;
             camera_z= (int)camera_z %360;
             break;
-            
+        case 'a':
+            ball.x -= 0.5;
+            break;
+        case 'd':
+            ball.x += 0.5;
+            break;
+        case 'w':
+            ball.z -= 0.5;
+            break;
+        case 's':
+            ball.z += 0.5;
+            break;
     }
 }
 
 void myMouse(int x, int y){
-//    printf("%.3d, %.3d\n", x,y);
     float temp_w = WINDOW_W/2;
     float temp_h = WINDOW_H/2;
-    platform.roll = (temp_w-x)/temp_w;
-    platform.pitch = (temp_h-y)/temp_h;
+    platform.roll = (x-temp_w)/temp_w * MAX_ROLL;
+    platform.pitch = (temp_h-y)/temp_h * MAX_PITCH;
+//    printf("%.3f, %.3f\n", platform.roll, platform.pitch);
 }
 
 void anim(){
     glutPostRedisplay();
+    ball.update(platform);
 }
