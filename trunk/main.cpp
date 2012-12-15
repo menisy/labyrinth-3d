@@ -64,10 +64,13 @@ struct Platform{
     float pitch;
     
     void draw(){
+       
         glPushMatrix(); // world
         glRotatef(roll, 0.0, 0.0, -1.0);
         glRotatef(pitch, 1.0, 0.0, 0.0);
-        
+        float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+        glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
+        glMateriali(GL_FRONT, GL_SHININESS, 43);
         glPushMatrix(); // platform
         
         glScaled(width, 1, width);
@@ -99,7 +102,7 @@ struct Ball{
     double delta_x, delta_y, delta_z;
     
     void update(Platform p){
-
+        
         // f = m*a; a = f/m;
         double acc_x = GRAV * sin(p.roll * PI/180)/weight;
         double acc_y = -1 * GRAV * cos(p.roll * PI/180)/weight;
@@ -140,8 +143,11 @@ struct Ball{
     }
     
     void draw(){
+        float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+        glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
+        glMateriali(GL_FRONT, GL_SHININESS, 1);
         glPushMatrix(); // start ball
-        glColor3f(0.0, 0.0, 1);
+        glColor3f(0.6, 0.6, 0.6);
         glTranslated(x, y + rad, z);
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
@@ -176,10 +182,12 @@ void display(void)
     glRotatef(camera_z, 0.0, 0.0, 1.0);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    float pos[] = {200,200,0};
+    float pos[] = {0,200,0};
     float dif[] = {.3,.3,.3,3};
+    float spec[] = {0.7,0.7,0.7,1};
     glLightfv(GL_LIGHT0,GL_DIFFUSE,dif);
     glLightfv(GL_LIGHT0,GL_POSITION,pos);
+    glLightfv(GL_LIGHT0,GL_SPECULAR, spec);
     
     glPushMatrix(); // everything
     
@@ -205,18 +213,18 @@ int main(int argc, char **argv)
     glutCreateWindow("Transformation testbed - wireframes");
     glutDisplayFunc(display);
     
-//    GLfloat light_diffuse[] = {0.5, 0.5, 0.5};
-//    float light_position[] = {10.0, 10.5, 10.5, 0.0};
+    //    GLfloat light_diffuse[] = {0.5, 0.5, 0.5};
+    //    float light_position[] = {10.0, 10.5, 10.5, 0.0};
     
     
-//    glLightfv(GL_LIGHT0, GL_AMBIENT, light_diffuse);
-//    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-//    glShadeModel(GL_SMOOTH);
-//    
-//    glEnable(GL_LIGHT0);
-//    glEnable(GL_LIGHTING);
+    //    glLightfv(GL_LIGHT0, GL_AMBIENT, light_diffuse);
+    //    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    //    glShadeModel(GL_SMOOTH);
+    //    
+    //    glEnable(GL_LIGHT0);
+    //    glEnable(GL_LIGHTING);
     
-
+    
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -228,7 +236,7 @@ int main(int argc, char **argv)
     glClearColor(1.0f, 1.0f, 1.0f,0.0f); // background is white
 	glutIdleFunc(anim);
     glViewport(0, 0, WINDOW_H, WINDOW_W);
-
+    
     glutMainLoop();
 }
 
@@ -279,7 +287,7 @@ void myMouse(int x, int y){
         y = 0;
     platform.roll = (x-temp_w)/temp_w * MAX_ROLL;
     platform.pitch = (temp_h-y)/temp_h * MAX_PITCH;
-//    printf("%.3f, %.3f\n", platform.roll, platform.pitch);
+    //    printf("%.3f, %.3f\n", platform.roll, platform.pitch);
 }
 
 void anim(){
