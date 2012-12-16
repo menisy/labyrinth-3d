@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <math.h>
+#include "TextureLoader.h"
 
 using namespace std;
 
@@ -19,6 +20,8 @@ void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
 void myMouse(int,int);
 void display();
+GLuint platformTexture;
+GLuint ballTexture;
 
 struct Ball;
 struct Block;
@@ -64,20 +67,28 @@ struct Platform{
     float pitch;
     
     void draw(){
-       
+        
         glPushMatrix(); // world
         glRotatef(roll, 0.0, 0.0, -1.0);
         glRotatef(pitch, 1.0, 0.0, 0.0);
-        float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-        glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-        glMateriali(GL_FRONT, GL_SHININESS, 43);
         glPushMatrix(); // platform
-        
         glScaled(width, 1, width);
         glTranslated(0, -0.5, 0);
-        glColor3f(0.9,0,0);
-        glutSolidCube(1);
-        
+        glColor3f(1,1,1);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, platformTexture);
+      //  glutSolidCube(1);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0,0);
+        glVertex3f(1.0,-0.1,1.0);
+        glTexCoord2f(0,1);
+        glVertex3f(1.0,-0.1,-1.0);
+        glTexCoord2f(1,0);
+        glVertex3f(-1.0,-0.1,-1.0);
+        glTexCoord2f(1,1);
+        glVertex3f(-1.0,-0.1,1.0);
+        glDisable(GL_TEXTURE_2D);
+        glEnd();
         glPopMatrix(); // end platform
         
         glPopMatrix(); // end world
@@ -111,11 +122,11 @@ struct Ball{
         double acc_y_1 = -1 * GRAV * cos(p.roll * PI/180)/weight;
         double acc_y_2 = -1 * GRAV * cos(p.pitch * PI/180)/weight;
         acc_y = acc_y_1+acc_y_2;
-            
+        
         double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
         
         delta_x += acc_x;
-//        delta_y = acc_y;
+        //        delta_y = acc_y;
         delta_z += acc_z;
         
         acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
@@ -152,7 +163,13 @@ struct Ball{
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
         gluQuadricDrawStyle(qobj,GLU_FILL);
+        gluQuadricTexture(qobj,GL_TRUE); 
+        gluQuadricNormals(qobj, GLU_SMOOTH);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, ballTexture);
         gluSphere(qobj, rad, 20, 10);
+        gluDeleteQuadric(qobj); 
+        glDisable(GL_TEXTURE_2D);
         glPopMatrix(); // end ball
     }
 };
@@ -185,6 +202,8 @@ void display(void)
     float pos[] = {0,200,0};
     float dif[] = {.3,.3,.3,3};
     float spec[] = {0.7,0.7,0.7,1};
+    float amb[] = {1,1,1,1};
+//    glLightfv(GL_LIGHT0, GL_AMBIENT,amb );
     glLightfv(GL_LIGHT0,GL_DIFFUSE,dif);
     glLightfv(GL_LIGHT0,GL_POSITION,pos);
     glLightfv(GL_LIGHT0,GL_SPECULAR, spec);
@@ -207,6 +226,7 @@ void display(void)
 //<<<<<<<<<<<<<<<<<<<<<< main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 int main(int argc, char **argv)
 {
+    
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH );
     
@@ -215,7 +235,8 @@ int main(int argc, char **argv)
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Transformation testbed - wireframes");
     glutDisplayFunc(display);
-    
+    platformTexture = loadTexture("/Users/MESAI/Downloads/wood_texture.png",256,192);
+    ballTexture = loadTexture("/Users/MESAI/Downloads/chess_texture.png",1200,1200);
     //    GLfloat light_diffuse[] = {0.5, 0.5, 0.5};
     //    float light_position[] = {10.0, 10.5, 10.5, 0.0};
     
