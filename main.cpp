@@ -150,14 +150,16 @@ struct Ball{
         }
         // end platform
         
-        rot_x += delta_x  *20;
+        // circum = 2 pi r
+        
+        rot_x += delta_x  *30;// XXX hardcoded, can get it physically
         if (rot_x > 360)
             rot_x -=360;
         
         if (rot_x < -360)
             rot_x +=360;
         
-        rot_z += delta_z * 20;
+        rot_z += delta_z *30; // XXX hardcoded, can get it physically
         if (rot_z > 360)
             rot_z -=360;
         
@@ -175,7 +177,7 @@ struct Ball{
         
         glPushMatrix(); // start ball
         glColor3f(0.6, 0.6, 0.6);
-        glTranslated(x, y + rad, z);
+        glTranslated(x,0.5, z);
         glRotatef(rot_x,0,0,-1);
         glRotatef(rot_z,1,0,0);
         GLUquadricObj * qobj;
