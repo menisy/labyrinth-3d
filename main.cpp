@@ -7,7 +7,7 @@ using namespace std;
 
 /* ################################ HEADERS ######################## */
 #define PI 3.14159265
-#define GRAV 0.01
+#define GRAV 0.010
 #define MAX_PITCH 15
 #define MAX_ROLL 15
 #define WINDOW_W 800
@@ -39,7 +39,7 @@ struct Point;
  method.
  
  */
-float camera_x = -20.0;
+float camera_x = 0.0;
 float camera_y = 0.0;
 float camera_z = 0.0;
 
@@ -48,7 +48,7 @@ struct Point{
 };
 
 struct Block{
-    Point *front, *back;
+    Point black[];
     
     void init(float xc, float yc, float widht, short orient){
         int dx[] = {1,1,-1,-1};
@@ -100,17 +100,30 @@ struct Ball{
     double x,y,z;
     double rad;
     double delta_x, delta_y, delta_z;
+    bool inair;
     
     void update(Platform p){
         
+        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
         // f = m*a; a = f/m;
         double acc_x = GRAV * sin(p.roll * PI/180)/weight;
-        double acc_y = -1 * GRAV * cos(p.roll * PI/180)/weight;
-        acc_y += -1 * GRAV * cos(p.pitch * PI/180)/weight;
+        double acc_y;
+        
+        if (!inair){
+            double acc_y_1 = -1 * GRAV * cos(p.roll * PI/180)/weight;
+            double acc_y_2 = -1 * GRAV * cos(p.pitch * PI/180)/weight;
+            acc_y = acc_y_1+acc_y_2;
+        }else{
+            acc_y = -1 * GRAV;
+        }
+            
         double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
         
         delta_x += acc_x;
-        delta_y += acc_y;
+        if(inair)
+            delta_y += acc_y;
+        else
+            delta_y = acc_y - 0.1; // XXX Threshhold, I'm sorry :'(
         delta_z += acc_z;
         
         acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
@@ -127,9 +140,13 @@ struct Ball{
         }
         
         if (y + delta_y > p.get_y(x,z)){
+            inair=true;
             y += delta_y;
         }else{
-            delta_y = -1 * ELASTICITY * delta_y;
+            if(inair){
+                delta_y = -1 * ELASTICITY * delta_y;
+                inair = false;
+            }
             y = p.get_y(x,z);
         }
         
@@ -156,7 +173,7 @@ struct Ball{
         glPopMatrix(); // end ball
     }
 };
-Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0};
+Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0,true};
 
 void display(void)
 {
