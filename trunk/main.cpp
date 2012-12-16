@@ -11,8 +11,8 @@ using namespace std;
 #define GRAV 0.010
 #define MAX_PITCH 15
 #define MAX_ROLL 15
-#define WINDOW_W 800
-#define WINDOW_H 600
+#define WINDOW_W 1024
+#define WINDOW_H 768
 #define ELASTICITY 0.2// max 1.0
 #define FRICTION 1.0
 
@@ -40,7 +40,6 @@ struct Point;
  
  The ball is indepedent. Gravity, Friction, Elasticity affects it in the update 
  method.
- 
  */
 float camera_x = 0.0;
 float camera_y = 0.0;
@@ -224,7 +223,7 @@ struct Ball{
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, ballTexture);
         gluSphere(qobj, rad, 20, 10);
-        gluDeleteQuadric(qobj); 
+        gluDeleteQuadric(qobj);
         glDisable(GL_TEXTURE_2D);
         glPopMatrix(); // end ball
         
@@ -236,18 +235,18 @@ void display(void)
 {
     glMatrixMode(GL_PROJECTION); // set the view volume shape
     glLoadIdentity();
-    gluPerspective(100, //Field of view
+    gluPerspective(50, //Field of view
                    (WINDOW_W)*1.0/(WINDOW_H)*1.0, //Aspect ratio
                    0.1, // Z near
                    1000.0);// Z far
 //    
-//    double factor = 0.5;
-//    glOrtho(-10/factor, 10/factor, -10/factor, 10/factor, 0.1, 500);
+    double factor = 1.0;
+    glOrtho(10/factor, 10/factor, -10/factor, -10/factor, 0.1, 500);
     glMatrixMode(GL_MODELVIEW); // position and aim the camera
-    
+
     glEnable(GL_DEPTH_TEST);
     glLoadIdentity();
-    gluLookAt(0.0,15.0,0.1, // eye
+    gluLookAt(0.0,85.0,0.1, // eye
               0.0,0.0,0.0,
               0.0, 1.0, 0.0); // normal
     
