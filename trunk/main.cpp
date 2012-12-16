@@ -123,7 +123,7 @@ struct Ball{
         if(inair)
             delta_y += acc_y;
         else
-            delta_y = acc_y - 0.1; // XXX Threshhold, I'm sorry :'(
+            delta_y = acc_y;
         delta_z += acc_z;
         
         acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
@@ -139,7 +139,8 @@ struct Ball{
             delta_x = -1 * ELASTICITY * delta_x;
         }
         
-        if (y + delta_y > p.get_y(x,z)){
+        // XXX "0.1" is a threshhold, I'm sorry :'(
+        if (y + delta_y - 0.1 > p.get_y(x,z)){
             inair=true;
             y += delta_y;
         }else{
