@@ -42,7 +42,7 @@ struct Point;
  method.
  
  */
-float camera_x = -90.0;
+float camera_x = 0.0;
 float camera_y = 0.0;
 float camera_z = 0.0;
 
@@ -74,18 +74,54 @@ struct Platform{
         glColor3f(1,1,1);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, platformTexture);
-      //  glutSolidCube(1);
+        //  glutSolidCube(1);
         glBegin(GL_QUADS);
         glTexCoord2f(0,0);
-        glVertex3f(1.0,-0.1,1.0);
+        glVertex3f(1.0,0.5,1.0);
         glTexCoord2f(0,1);
-        glVertex3f(1.0,-0.1,-1.0);
+        glVertex3f(1.0,0.5,-1.0);
         glTexCoord2f(1,0);
-        glVertex3f(-1.0,-0.1,-1.0);
+        glVertex3f(-1.0,0.5,-1.0);
         glTexCoord2f(1,1);
-        glVertex3f(-1.0,-0.1,1.0);
-        glDisable(GL_TEXTURE_2D);
+        glVertex3f(-1.0,0.5,1.0);
         glEnd();
+        glBegin(GL_QUADS);
+        glVertex3f(1.0,-0.5,1.0);
+        glVertex3f(1.0,-0.5,-1.0);
+        glVertex3f(1.0,0.5,-1.0);
+        glVertex3f(1.0,0.5,1.0);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3f(-1.0,-0.5,-1.0);
+        glVertex3f(-1.0,-0.5,1.0);
+        glVertex3f(-1.0,0.5,1.0);
+        glVertex3f(-1.0,0.5,-1.0);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3f(1.0,-0.5,1.0);
+        glVertex3f(-1.0,-0.5,1.0);
+        glVertex3f(-1.0,0.5,1.0);
+        glVertex3f(1.0,0.5,1.0);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3f(-1.0,-0.5,-1.0);
+        glVertex3f(1.0,-0.5,-1.0);
+        glVertex3f(1.0,0.5,-1.0);
+        glVertex3f(-1.0,0.5,-1.0);
+        glEnd();
+        glBegin(GL_QUADS);
+        glTexCoord2f(0,0);
+        glVertex3f(1.0,-0.5,1.0);
+        glTexCoord2f(0,1);
+        glVertex3f(1.0,-0.5,-1.0);
+        glTexCoord2f(1,0);
+        glVertex3f(-1.0,-0.5,-1.0);
+        glTexCoord2f(1,1);
+        glVertex3f(-1.0,-0.5,1.0);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+        
+        
         glPopMatrix(); // end platform
         
         glPopMatrix(); // end world
@@ -177,7 +213,7 @@ struct Ball{
         
         glPushMatrix(); // start ball
         glColor3f(0.6, 0.6, 0.6);
-        glTranslated(x,0.5, z);
+        glTranslated(x,rad, z);
         glRotatef(rot_x,0,0,-1);
         glRotatef(rot_z,1,0,0);
         GLUquadricObj * qobj;
@@ -200,18 +236,18 @@ void display(void)
 {
     glMatrixMode(GL_PROJECTION); // set the view volume shape
     glLoadIdentity();
-    gluPerspective(140, //Field of view
+    gluPerspective(100, //Field of view
                    (WINDOW_W)*1.0/(WINDOW_H)*1.0, //Aspect ratio
                    0.1, // Z near
-                   100.0);// Z far
-    
-    double factor = 1;
-    glOrtho(-10/factor, 10/factor, -10/factor, 10/factor, 0.1, 500);
+                   1000.0);// Z far
+//    
+//    double factor = 0.5;
+//    glOrtho(-10/factor, 10/factor, -10/factor, 10/factor, 0.1, 500);
     glMatrixMode(GL_MODELVIEW); // position and aim the camera
     
     glEnable(GL_DEPTH_TEST);
     glLoadIdentity();
-    gluLookAt(0.0,0.0,5.0, // eye
+    gluLookAt(0.0,15.0,0.1, // eye
               0.0,0.0,0.0,
               0.0, 1.0, 0.0); // normal
     
@@ -243,7 +279,6 @@ void display(void)
     glPopMatrix(); // end everything
     glFlush();
 }
-
 //<<<<<<<<<<<<<<<<<<<<<< main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 int main(int argc, char **argv)
 {
@@ -331,7 +366,7 @@ void myMouse(int x, int y){
     if (y < 0)
         y = 0;
     platform.roll = (x-temp_w)/temp_w * MAX_ROLL;
-    platform.pitch = (temp_h-y)/temp_h * MAX_PITCH;
+    platform.pitch = (y-temp_h)/temp_h * MAX_PITCH;
     //    printf("%.3f, %.3f\n", platform.roll, platform.pitch);
 }
 
