@@ -100,7 +100,6 @@ struct Ball{
     double x,y,z;
     double rad;
     double delta_x, delta_y, delta_z;
-    bool inair;
     
     void update(Platform p){
         
@@ -109,21 +108,14 @@ struct Ball{
         double acc_x = GRAV * sin(p.roll * PI/180)/weight;
         double acc_y;
         
-        if (!inair){
-            double acc_y_1 = -1 * GRAV * cos(p.roll * PI/180)/weight;
-            double acc_y_2 = -1 * GRAV * cos(p.pitch * PI/180)/weight;
-            acc_y = acc_y_1+acc_y_2;
-        }else{
-            acc_y = -1 * GRAV;
-        }
+        double acc_y_1 = -1 * GRAV * cos(p.roll * PI/180)/weight;
+        double acc_y_2 = -1 * GRAV * cos(p.pitch * PI/180)/weight;
+        acc_y = acc_y_1+acc_y_2;
             
         double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
         
         delta_x += acc_x;
-        if(inair)
-            delta_y += acc_y;
-        else
-            delta_y = acc_y;
+//        delta_y = acc_y;
         delta_z += acc_z;
         
         acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
@@ -139,18 +131,8 @@ struct Ball{
             delta_x = -1 * ELASTICITY * delta_x;
         }
         
-        // XXX "0.1" is a threshhold, I'm sorry :'(
-        if (y + delta_y - 0.1 > p.get_y(x,z)){
-            inair=true;
-            y += delta_y;
-        }else{
-            if(inair){
-                delta_y = -1 * ELASTICITY * delta_y;
-                inair = false;
-            }
-            y = p.get_y(x,z);
-        }
         
+        y = 0.0;
         if (z + delta_z < 20 && z+delta_z > -20){
             z += delta_z;
         }else{
@@ -174,7 +156,7 @@ struct Ball{
         glPopMatrix(); // end ball
     }
 };
-Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0,true};
+Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0};
 
 void display(void)
 {
@@ -213,6 +195,9 @@ void display(void)
     glutWireCube(50);
     
     platform.draw();
+    
+    glRotatef(platform.roll, 0.0, 0.0, -1.0);
+    glRotatef(platform.pitch, 1.0, 0.0, 0.0);
     ball.draw();
     
     glPopMatrix(); // end everything
