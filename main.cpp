@@ -178,7 +178,7 @@ struct Ball{
         
         
         y = 0.0;
-        if (z + delta_z < 20 && z+delta_z > -20){
+        if (z + delta_z < platform.width && z+delta_z > -1 * platform.width){
             z += delta_z;
         }else{
             delta_z = -1 * ELASTICITY * delta_z;
