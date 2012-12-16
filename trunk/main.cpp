@@ -42,7 +42,7 @@ struct Point;
  method.
  
  */
-float camera_x = 0.0;
+float camera_x = -90.0;
 float camera_y = 0.0;
 float camera_z = 0.0;
 
@@ -51,14 +51,11 @@ struct Point{
 };
 
 struct Block{
-    Point black[];
+    float size;
+    float *texture;
     
-    void init(float xc, float yc, float widht, short orient){
-        int dx[] = {1,1,-1,-1};
-        int dy[] = {1,-1,1,-1};
-        
-        for (int i = 0; i < 4; i++){
-        }
+    void draw(){
+        glutSolidCube(size);
     }
 };
 struct Platform{
@@ -111,6 +108,8 @@ struct Ball{
     double x,y,z;
     double rad;
     double delta_x, delta_y, delta_z;
+    double rot_x;
+    double rot_z;
     
     void update(Platform p){
         
@@ -151,15 +150,34 @@ struct Ball{
         }
         // end platform
         
+        rot_x += delta_x  *20;
+        if (rot_x > 360)
+            rot_x -=360;
+        
+        if (rot_x < -360)
+            rot_x +=360;
+        
+        rot_z += delta_z * 20;
+        if (rot_z > 360)
+            rot_z -=360;
+        
+        if (rot_z < -360)
+            rot_z +=360;
+        
+        printf("\t%.3f, %.3f\n", rot_x, rot_z);
+        
     }
     
     void draw(){
         float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
         glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
         glMateriali(GL_FRONT, GL_SHININESS, 1);
+        
         glPushMatrix(); // start ball
         glColor3f(0.6, 0.6, 0.6);
         glTranslated(x, y + rad, z);
+        glRotatef(rot_x,0,0,-1);
+        glRotatef(rot_z,1,0,0);
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
         gluQuadricDrawStyle(qobj,GLU_FILL);
@@ -171,9 +189,10 @@ struct Ball{
         gluDeleteQuadric(qobj); 
         glDisable(GL_TEXTURE_2D);
         glPopMatrix(); // end ball
+        
     }
 };
-Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0};
+Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
@@ -203,7 +222,7 @@ void display(void)
     float dif[] = {.3,.3,.3,3};
     float spec[] = {0.7,0.7,0.7,1};
     float amb[] = {1,1,1,1};
-//    glLightfv(GL_LIGHT0, GL_AMBIENT,amb );
+    glLightfv(GL_LIGHT0, GL_AMBIENT,amb );
     glLightfv(GL_LIGHT0,GL_DIFFUSE,dif);
     glLightfv(GL_LIGHT0,GL_POSITION,pos);
     glLightfv(GL_LIGHT0,GL_SPECULAR, spec);
@@ -235,8 +254,8 @@ int main(int argc, char **argv)
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Transformation testbed - wireframes");
     glutDisplayFunc(display);
-    platformTexture = loadTexture("/Users/MESAI/Downloads/wood_texture.png",256,192);
-    ballTexture = loadTexture("/Users/MESAI/Downloads/chess_texture.png",1200,1200);
+    platformTexture = loadTexture("/pngs/wood_texture.png",256,192);
+    ballTexture = loadTexture("/pngs/chess_texture.png",1200,1200);
     //    GLfloat light_diffuse[] = {0.5, 0.5, 0.5};
     //    float light_position[] = {10.0, 10.5, 10.5, 0.0};
     
