@@ -13,8 +13,8 @@ using namespace std;
 #define MAX_ROLL 15
 #define WINDOW_W 800
 #define WINDOW_H 600 
-#define ELASTICITY 0.2// max 1.0
-#define FRICTION 0.5 // max 1.0
+#define ELASTICITY 0.1// max 1.0
+#define FRICTION 0.0 // max 1.0
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -149,7 +149,7 @@ struct Ball{
     
     void update(Platform p){
         
-        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
+//        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
         // f = m*a; a = f/m;
         double acc_x = (GRAV-FRICTION*GRAV) * sin(p.roll * PI/180)/(weight);
         double acc_y;
@@ -172,6 +172,7 @@ struct Ball{
             x += delta_x;
         }else{
             delta_x = -1 * ELASTICITY * delta_x;
+            x +=delta_x;
         }
         
         
@@ -180,24 +181,20 @@ struct Ball{
             z += delta_z;
         }else{
             delta_z = -1 * ELASTICITY * delta_z;
+            z += delta_z;
         }
         // end platform
         
         // circum = 2 pi r
         
-        rot_x += delta_x  *30;// XXX hardcoded, can get it physically
-        if (rot_x > 360)
-            rot_x -=360;
+        rot_x += delta_x*30.0;// XXX hardcoded, can get it physically
         
-        if (rot_x < -360)
-            rot_x +=360;
+        rot_z += delta_z*30.0; // XXX hardcoded, can get it physically
         
-        rot_z += delta_z *30; // XXX hardcoded, can get it physically
-        if (rot_z > 360)
-            rot_z -=360;
-        
-        if (rot_z < -360)
-            rot_z +=360;
+//        if (rot_x > 360) rot_x -=360;
+//        if (rot_x < -360) rot_x +=360;
+//        if (rot_z > 360) rot_z -=360;
+//        if (rot_z < -360) rot_z +=360;
         
         printf("\t%.3f, %.3f\n", rot_x, rot_z);
         
@@ -213,8 +210,14 @@ struct Ball{
         glTranslated(x,rad, z);
         
         
-        glRotatef(rot_x,0,0,-1);
-        glRotatef(rot_z,1,0,0);
+        // FIXME put both on only one rotatation
+        double ang = atan(rot_z/rot_x);
+        double rot = rot_x / cos(ang);
+//        
+        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
+//        glRotatef(rot_x,0,0,-1);
+//        glRotatef(rot_z,1,0,0);
         
         
         GLUquadricObj * qobj;
@@ -354,6 +357,8 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             ball.z = 0;
             ball.delta_x = 0;
             ball.delta_z = 0;
+            ball.rot_x = 0;
+            ball.rot_z = 0;
             break;
     }
 }
