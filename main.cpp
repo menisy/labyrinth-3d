@@ -187,6 +187,8 @@ struct Ball{
         
         // circum = 2 pi r
         
+//        delta_x = -0.05;
+//        delta_z = 0.05;
         double factor = 360 / (2*PI*rad);// distance travelled for one unit
         rot_x += delta_x*factor;// XXX hardcoded, can get it physically
         
@@ -211,14 +213,30 @@ struct Ball{
         glTranslated(x,rad, z);
         
         
+        float rot_y = 0.0;
+        float cos_z_2 = cosf(0.5*rot_z);
+		float cos_y_2 = cosf(0.5*0);
+		float cos_x_2 = cosf(0.5*rot_x);
+
+		float sin_z_2 = sinf(0.5*rot_z);
+		float sin_y_2 = sinf(0.5*rot_y);
+		float sin_x_2 = sinf(0.5*rot_x);
+
+		// and now compute quaternion
+		float s   = cos_z_2*cos_y_2*cos_x_2 + sin_z_2*sin_y_2*sin_x_2;
+		float tmpx = cos_z_2*cos_y_2*sin_x_2 - sin_z_2*sin_y_2*cos_x_2;
+		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
+		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
+        
+        glRotatef(s, tmpz, 0.0, tmpx);
         // FIXME put both on only one rotatation
-        double ang = atan(rot_z/rot_x);
-        double rot = rot_x / cos(ang);
-//        
-        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
-        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
+//        double ang = atan(rot_z/rot_x);
+//        double rot = rot_x / cos(ang);
+//
+//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+//        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
 //        glRotatef(rot_x,0,0,-1);
-//        glRotatef(rot_z,1,0,0);
+        glRotatef(rot_z,1,0,0);
         
         
         GLUquadricObj * qobj;
@@ -235,7 +253,7 @@ struct Ball{
         
     }
 };
-Ball ball = {2.0, 0.0, 5.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {/*weight*/2.0, 0.0, 5.0, 0.0, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
