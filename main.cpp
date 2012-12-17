@@ -11,8 +11,8 @@ using namespace std;
 #define GRAV 0.010
 #define MAX_PITCH 15
 #define MAX_ROLL 15
-#define WINDOW_W 1024
-#define WINDOW_H 768
+#define WINDOW_W 800
+#define WINDOW_H 600 
 #define ELASTICITY 0.2// max 1.0
 #define FRICTION 1.0
 
@@ -20,6 +20,7 @@ void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
 void myMouse(int,int);
 void display();
+float sign(float);
 GLuint platformTexture;
 GLuint ballTexture;
 
@@ -163,8 +164,8 @@ struct Ball{
         //        delta_y = acc_y;
         delta_z += acc_z;
         
-        acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
-        acc_z = acc_z > 0? acc_z - FRICTION*weight : acc_z + FRICTION*weight;
+//        acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
+//        acc_z = acc_z > 0? acc_z - FRICTION*weight : acc_z + FRICTION*weight;
         
         
         // Collision detection
@@ -213,8 +214,12 @@ struct Ball{
         glPushMatrix(); // start ball
         glColor3f(0.6, 0.6, 0.6);
         glTranslated(x,rad, z);
+        
+        
         glRotatef(rot_x,0,0,-1);
         glRotatef(rot_z,1,0,0);
+        
+        
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
         gluQuadricDrawStyle(qobj,GLU_FILL);
@@ -347,6 +352,12 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             camera_z -= 5;
             camera_z= (int)camera_z %360;
             break;
+        case 'r':
+            ball.x = 0;
+            ball.z = 0;
+            ball.delta_x = 0;
+            ball.delta_z = 0;
+            break;
     }
 }
 
@@ -372,4 +383,8 @@ void myMouse(int x, int y){
 void anim(){
     glutPostRedisplay();
     ball.update(platform);
+}
+
+float sign(float x){
+    return x >= 0? 1:-1;
 }
