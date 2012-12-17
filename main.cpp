@@ -187,9 +187,10 @@ struct Ball{
         
         // circum = 2 pi r
         
-        rot_x += delta_x*30.0;// XXX hardcoded, can get it physically
+        double factor = 360 / (2*PI*rad);// distance travelled for one unit
+        rot_x += delta_x*factor;// XXX hardcoded, can get it physically
         
-        rot_z += delta_z*30.0; // XXX hardcoded, can get it physically
+        rot_z += delta_z*factor; // XXX hardcoded, can get it physically
         
 //        if (rot_x > 360) rot_x -=360;
 //        if (rot_x < -360) rot_x +=360;
@@ -234,7 +235,7 @@ struct Ball{
         
     }
 };
-Ball ball = {2.0, 0.0, 5.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {2.0, 0.0, 5.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
@@ -244,7 +245,7 @@ void display(void)
                    (WINDOW_W)*1.0/(WINDOW_H)*1.0, //Aspect ratio
                    0.1, // Z near
                    1000.0);// Z far
-//    
+   
     double factor = 1.0;
     glOrtho(10/factor, 10/factor, -10/factor, -10/factor, 0.1, 500);
     glMatrixMode(GL_MODELVIEW); // position and aim the camera
