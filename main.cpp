@@ -135,7 +135,7 @@ struct Platform{
         return y;
     }
     
-}platform = {40, 0.0, 0.0};
+}platform = {30, 0.0, 0.0};
 
 
 struct Ball{
