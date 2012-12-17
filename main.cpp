@@ -189,10 +189,9 @@ struct Ball{
         
 //        delta_x = -0.05;
 //        delta_z = 0.05;
-        double factor = 360 / (2*PI*rad);// distance travelled for one unit
-        rot_x += delta_x*factor;// XXX hardcoded, can get it physically
+        rot_x = delta_x/rad;// XXX hardcoded, can get it physically
         
-        rot_z += delta_z*factor; // XXX hardcoded, can get it physically
+        rot_z = delta_z/rad; // XXX hardcoded, can get it physically
         
 //        if (rot_x > 360) rot_x -=360;
 //        if (rot_x < -360) rot_x +=360;
@@ -215,7 +214,7 @@ struct Ball{
         
         float rot_y = 0.0;
         float cos_z_2 = cosf(0.5*rot_z);
-		float cos_y_2 = cosf(0.5*0);
+		float cos_y_2 = cosf(0.5*0.0001);
 		float cos_x_2 = cosf(0.5*rot_x);
 
 		float sin_z_2 = sinf(0.5*rot_z);
