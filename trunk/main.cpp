@@ -228,7 +228,7 @@ struct Ball{
 		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
 		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
         
-        glRotatef(s, tmpz, tmpy ,tmpx);
+        glRotatef(s, tmpx, tmpy ,tmpz);
         // FIXME put both on only one rotatation
 //        double ang = atan(rot_z/rot_x);
 //        double rot = rot_x / cos(ang);
@@ -236,7 +236,7 @@ struct Ball{
 //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
 //        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
 //        glRotatef(rot_x,0,0,-1);
-        glRotatef(rot_z,1,0,0);
+//        glRotatef(rot_z,1,0,0);
         
         
         GLUquadricObj * qobj;
