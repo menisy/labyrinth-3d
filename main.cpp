@@ -14,7 +14,7 @@ using namespace std;
 #define WINDOW_W 800
 #define WINDOW_H 600 
 #define ELASTICITY 0.2// max 1.0
-#define FRICTION 1.0
+#define FRICTION 0.8 // max 1.0
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -160,12 +160,12 @@ struct Ball{
         
         double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
         
+        acc_x = acc_x > 0? acc_x - FRICTION*acc_x : acc_x + FRICTION*acc_x;
+        acc_z = acc_z > 0? acc_z - FRICTION*acc_z : acc_z + FRICTION*acc_z;
+        
         delta_x += acc_x;
         //        delta_y = acc_y;
         delta_z += acc_z;
-        
-//        acc_x = acc_x > 0? acc_x - FRICTION*weight : acc_x + FRICTION*weight;
-//        acc_z = acc_z > 0? acc_z - FRICTION*weight : acc_z + FRICTION*weight;
         
         
         // Collision detection
