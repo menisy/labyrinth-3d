@@ -168,7 +168,7 @@ struct Ball{
         // Collision detection
         // platform
         
-        if (x + delta_x < platform.width && x + delta_x > -1 * platform.width){
+        if (x + rad + delta_x < platform.width && x - rad + delta_x > -1 * platform.width){
             x += delta_x;
         }else{
             delta_x = -1 * ELASTICITY * delta_x;
@@ -177,7 +177,7 @@ struct Ball{
         
         
         y = 0.0;
-        if (z + delta_z < platform.width && z+delta_z > -1 * platform.width){
+        if (z + rad + delta_z < platform.width && z+delta_z - rad > -1 * platform.width){
             z += delta_z;
         }else{
             delta_z = -1 * ELASTICITY * delta_z;
