@@ -12,7 +12,7 @@ using namespace std;
 #define MAX_PITCH 15
 #define MAX_ROLL 15
 #define WINDOW_W 800
-#define WINDOW_H 600 
+#define WINDOW_H 600
 #define ELASTICITY 0.1// max 1.0
 #define FRICTION 0.0 // max 1.0
 
@@ -33,13 +33,13 @@ struct Point;
  
  Notes on the world:
  The platform surface (when horizontal) is at y=0. So anything you want to draw
- on the surface should be drawn without translation. 
+ on the surface should be drawn without translation.
  
  in platform draw, there is a matrix with a comment "World", this means
  platoform and blocks on the platform. Not sure if it's the best design though,
  but it will work fine for platforms + array of blocks.
  
- The ball is indepedent. Gravity, Friction, Elasticity affects it in the update 
+ The ball is indepedent. Gravity, Friction, Elasticity affects it in the update
  method.
  */
 float camera_x = 0.0;
@@ -149,7 +149,7 @@ struct Ball{
     
     void update(Platform p){
         
-//        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
+        //        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
         // f = m*a; a = f/m;
         double acc_x = (GRAV-FRICTION*GRAV) * sin(p.roll * PI/180)/(weight);
         double acc_y;
@@ -187,16 +187,15 @@ struct Ball{
         
         // circum = 2 pi r
         
-//        delta_x = -0.05;
-//        delta_z = 0.05;
-        rot_x = delta_x/rad;// XXX hardcoded, can get it physically
+        double factor = 360 / (2*PI*rad);// distance travelled for one unit
+        rot_x += delta_x*factor;// XXX hardcoded, can get it physically
         
-        rot_z = delta_z/rad; // XXX hardcoded, can get it physically
+        rot_z += delta_z*factor; // XXX hardcoded, can get it physically
         
-//        if (rot_x > 360) rot_x -=360;
-//        if (rot_x < -360) rot_x +=360;
-//        if (rot_z > 360) rot_z -=360;
-//        if (rot_z < -360) rot_z +=360;
+        //        if (rot_x > 360) rot_x -=360;
+        //        if (rot_x < -360) rot_x +=360;
+        //        if (rot_z > 360) rot_z -=360;
+        //        if (rot_z < -360) rot_z +=360;
         
         printf("\t%.3f, %.3f\n", rot_x, rot_z);
         
@@ -212,36 +211,20 @@ struct Ball{
         glTranslated(x,rad, z);
         
         
-        float rot_y = 0.0;
-        float cos_z_2 = cosf(0.5*rot_z);
-		float cos_y_2 = cosf(0.5*0.0001);
-		float cos_x_2 = cosf(0.5*rot_x);
-
-		float sin_z_2 = sinf(0.5*rot_z);
-		float sin_y_2 = sinf(0.5*rot_y);
-		float sin_x_2 = sinf(0.5*rot_x);
-
-		// and now compute quaternion
-		float s   = cos_z_2*cos_y_2*cos_x_2 + sin_z_2*sin_y_2*sin_x_2;
-		float tmpx = cos_z_2*cos_y_2*sin_x_2 - sin_z_2*sin_y_2*cos_x_2;
-		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
-		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
-        
-        glRotatef(s, tmpx, tmpy ,tmpz);
         // FIXME put both on only one rotatation
-//        double ang = atan(rot_z/rot_x);
-//        double rot = rot_x / cos(ang);
-//
-//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
-//        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
-//        glRotatef(rot_x,0,0,-1);
-//        glRotatef(rot_z,1,0,0);
+        double ang = atan(rot_z/rot_x);
+        double rot = rot_x / cos(ang);
+        //
+        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
+        //        glRotatef(rot_x,0,0,-1);
+        //        glRotatef(rot_z,1,0,0);
         
         
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
         gluQuadricDrawStyle(qobj,GLU_FILL);
-        gluQuadricTexture(qobj,GL_TRUE); 
+        gluQuadricTexture(qobj,GL_TRUE);
         gluQuadricNormals(qobj, GLU_SMOOTH);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, ballTexture);
@@ -252,7 +235,7 @@ struct Ball{
         
     }
 };
-Ball ball = {/*weight*/2.0, 0.0, 5.0, 0.0, /*rad*/4.0, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {2.0, 0.0, 5.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
@@ -262,11 +245,11 @@ void display(void)
                    (WINDOW_W)*1.0/(WINDOW_H)*1.0, //Aspect ratio
                    0.1, // Z near
                    1000.0);// Z far
-   
+    
     double factor = 1.0;
     glOrtho(10/factor, 10/factor, -10/factor, -10/factor, 0.1, 500);
     glMatrixMode(GL_MODELVIEW); // position and aim the camera
-
+    
     glEnable(GL_DEPTH_TEST);
     glLoadIdentity();
     gluLookAt(0.0,85.0,0.1, // eye
@@ -322,7 +305,7 @@ int main(int argc, char **argv)
     //    glLightfv(GL_LIGHT0, GL_AMBIENT, light_diffuse);
     //    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     //    glShadeModel(GL_SMOOTH);
-    //    
+    //
     //    glEnable(GL_LIGHT0);
     //    glEnable(GL_LIGHTING);
     
