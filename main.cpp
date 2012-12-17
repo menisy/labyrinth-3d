@@ -228,7 +228,7 @@ struct Ball{
 		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
 		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
         
-        glRotatef(s, tmpz, 0.0, tmpx);
+        glRotatef(s, tmpz, tmpy ,tmpx);
         // FIXME put both on only one rotatation
 //        double ang = atan(rot_z/rot_x);
 //        double rot = rot_x / cos(ang);
@@ -253,7 +253,7 @@ struct Ball{
         
     }
 };
-Ball ball = {/*weight*/2.0, 0.0, 5.0, 0.0, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {/*weight*/2.0, 0.0, 5.0, 0.0, /*rad*/4.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
