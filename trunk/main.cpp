@@ -14,7 +14,7 @@ using namespace std;
 #define WINDOW_W 800
 #define WINDOW_H 600 
 #define ELASTICITY 0.2// max 1.0
-#define FRICTION 0.8 // max 1.0
+#define FRICTION 0.5 // max 1.0
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -151,17 +151,14 @@ struct Ball{
         
         printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
         // f = m*a; a = f/m;
-        double acc_x = GRAV * sin(p.roll * PI/180)/weight;
+        double acc_x = (GRAV-FRICTION*GRAV) * sin(p.roll * PI/180)/(weight);
         double acc_y;
         
         double acc_y_1 = -1 * GRAV * cos(p.roll * PI/180)/weight;
         double acc_y_2 = -1 * GRAV * cos(p.pitch * PI/180)/weight;
         acc_y = acc_y_1+acc_y_2;
         
-        double acc_z = GRAV * sin(p.pitch * PI/180)/weight;
-        
-        acc_x = acc_x > 0? acc_x - FRICTION*acc_x : acc_x + FRICTION*acc_x;
-        acc_z = acc_z > 0? acc_z - FRICTION*acc_z : acc_z + FRICTION*acc_z;
+        double acc_z = (GRAV-FRICTION*GRAV) * sin(p.pitch * PI/180)/(weight);
         
         delta_x += acc_x;
         //        delta_y = acc_y;
