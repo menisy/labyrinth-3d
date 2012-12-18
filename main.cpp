@@ -23,6 +23,12 @@ void display();
 float sign(float);
 GLuint platformTexture;
 GLuint ballTexture;
+GLuint holeTexture;
+GLuint blockTexture;
+
+
+
+
 
 struct Ball;
 struct Block;
@@ -48,16 +54,204 @@ float camera_z = 0.0;
 
 struct Point{
     float x,y,z;
+
 };
 
-struct Block{
-    float size;
-    float *texture;
+
+struct Hole{
+    float x;
+    float z;
+    bool finish;
     
     void draw(){
-        glutSolidCube(size);
+    glColor3f(1, 1, 1);
+    glPushMatrix();
+    GLUquadricObj * qobj;
+    qobj = gluNewQuadric();
+    gluQuadricDrawStyle( qobj, GLU_FILL); 
+    gluQuadricNormals( qobj, GLU_SMOOTH); 
+    gluQuadricTexture(qobj,GL_TRUE); 
+    gluQuadricOrientation( qobj,GLU_OUTSIDE);
+    glEnable(GL_TEXTURE_2D);
+    if(!finish){
+        glBindTexture(GL_TEXTURE_2D, holeTexture);
+    }else{
+        glBindTexture(GL_TEXTURE_2D, ballTexture);
+    }
+    glTranslated(x,0.1 ,z);
+    glRotated(90, 1, 0, 0);
+    glRotated(180, 0, 0, 1);
+    gluDisk(qobj, 0, 1.5, 20,20);
+    gluDeleteQuadric(qobj);
+    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+   
     }
 };
+Hole holes[18]= {
+    {-9.5,-14,false},
+    {-11,-8,false},
+    {-14,7,false},
+    {-14,13,false},
+    {-7,13,false},
+    {-4,-21,false},
+    {-4,-13.5,false},
+    {4,-11,false},
+    {9,-17,false},
+    {6.5,0,false},
+    {6.5,9,false},
+    {13.5,9,false},
+    {10,13,false},
+    {0,15.5,false},
+    {0,22,false},
+    {-3.5,2,false},
+    {0,-4,false},
+    {14,21,true}
+};
+struct Block{
+    float x;
+    float z;
+    
+    float width;
+    float depth;
+    
+    bool horizontal;
+    
+    
+    void draw(){
+        glColor3f(1,1,1);
+        glPushMatrix();
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, blockTexture);
+        glTranslated(x,1.5,z);
+        glScaled(width, 4,depth);
+        if(horizontal){
+        glBegin(GL_QUADS);
+        glTexCoord2f(0,0);
+        glVertex3f(0.5,0.5,0.5);
+        glTexCoord2f(1,0);
+        glVertex3f(0.5,0.5,-0.5);
+        glTexCoord2f(0,1);
+        glVertex3f(-0.5,0.5,-0.5);
+        glTexCoord2f(1,1);
+        glVertex3f(-0.5,0.5,0.5);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3f(0.5,0.5,0.5);
+        glVertex3f(0.5,0.5,-0.5);
+        glVertex3f(0.5,-0.5,-0.5);
+        glVertex3f(0.5,-0.5,0.5);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3f(-0.5,-0.5,-0.5);
+        glVertex3f(-0.5,-0.5,0.5);
+        glVertex3f(-0.5,0.5,0.5);
+        glVertex3f(-0.5,0.5,-0.5);
+        glEnd();
+        glBegin(GL_QUADS);
+        glTexCoord2f(1,0);
+        glVertex3f(0.5,-0.5,0.5);
+        glTexCoord2f(0,1);
+        glVertex3f(-0.5,-0.5,0.5);
+        glTexCoord2f(1,1);
+        glVertex3f(-0.5,0.5,0.5);
+        glTexCoord2f(0,0);
+        glVertex3f(0.5,0.5,0.5);
+        glEnd();
+        glBegin(GL_QUADS);
+        glTexCoord2f(1,1);
+        glVertex3f(-0.5,-0.5,-0.5);
+        glTexCoord2f(0,0);
+        glVertex3f(0.5,-0.5,-0.5);
+        glTexCoord2f(1,0);
+        glVertex3f(0.5,0.5,-0.5);
+        glTexCoord2f(0,1);
+        glVertex3f(-0.5,0.5,-0.5);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3f(0.5,-0.5,0.5);
+        glVertex3f(0.5,-0.5,-0.5);
+        glVertex3f(-0.5,-0.5,-0.5);
+        glVertex3f(-0.5,-0.5,0.5);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+        }else{
+            glBegin(GL_QUADS);
+            glTexCoord2f(1,1);
+            glVertex3f(0.5,0.5,0.5);
+            glTexCoord2f(0,0);
+            glVertex3f(0.5,0.5,-0.5);
+            glTexCoord2f(1,0);
+            glVertex3f(-0.5,0.5,-0.5);
+            glTexCoord2f(0,1);
+            glVertex3f(-0.5,0.5,0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glTexCoord2f(1,1);
+            glVertex3f(0.5,0.5,0.5);
+            glTexCoord2f(0,0);
+            glVertex3f(0.5,0.5,-0.5);
+            glTexCoord2f(1,0);
+            glVertex3f(0.5,-0.5,-0.5);
+            glTexCoord2f(0,1);
+            glVertex3f(0.5,-0.5,0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glTexCoord2f(1,0);
+            glVertex3f(-0.5,-0.5,-0.5);
+            glTexCoord2f(0,1);
+            glVertex3f(-0.5,-0.5,0.5);
+            glTexCoord2f(1,1);
+            glVertex3f(-0.5,0.5,0.5);
+            glTexCoord2f(0,0);
+            glVertex3f(-0.5,0.5,-0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glVertex3f(0.5,-0.5,0.5);
+            glVertex3f(-0.5,-0.5,0.5);
+            glVertex3f(-0.5,0.5,0.5);
+            glVertex3f(0.5,0.5,0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glVertex3f(-0.5,-0.5,-0.5);
+            glVertex3f(0.5,-0.5,-0.5);
+            glVertex3f(0.5,0.5,-0.5);
+            glVertex3f(-0.5,0.5,-0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glVertex3f(0.5,-0.5,0.5);
+            glVertex3f(0.5,-0.5,-0.5);
+            glVertex3f(-0.5,-0.5,-0.5);
+            glVertex3f(-0.5,-0.5,0.5);
+            glEnd();
+            glDisable(GL_TEXTURE_2D);
+        }
+        glPopMatrix();
+    }
+};
+Block bloacks[22] ={
+    {-13,-19,6,2,true},
+    {-7,-18,2,12,false},
+    {-4,-17,6,2,true},
+    {-9,-11,6,2,true},
+    {-11,-4,2,4,false},
+    {-10,-1,4,2,true},
+    {-11,4,12,2,true},
+    {-3,10,13,2,true},
+    {-10,18,4,2,true},
+    {-7,17,2,4,false},
+    {2.5,6,2,6,false},
+    {3,19.5,2,9,false},
+    {-0.5,-1,8,2,true},
+    {2.5,-5,2,6,false},
+    {6.5,-18,2,6,false},
+    {9.5,-20,4,2,true},
+    {9,-14,7,2,true},
+    {13,-8.5,6,2,true},
+    {10,0,2,6,false},
+    {10,9,2,4,false},
+    {10,17,2,4,false},
+    {13.5,17,5,2,true}};
 struct Platform{
     float width;
     float roll;
@@ -68,13 +262,16 @@ struct Platform{
         glPushMatrix(); // world
         glRotatef(roll, 0.0, 0.0, -1.0);
         glRotatef(pitch, 1.0, 0.0, 0.0);
+        glPushMatrix();
+        glScalef(32, 1, 48);
+        glutWireCube(1);
+        glPopMatrix();
         glPushMatrix(); // platform
         glScaled(width, 1, width);
         glTranslated(0, -0.5, 0);
         glColor3f(1,1,1);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, platformTexture);
-        //  glutSolidCube(1);
         glBegin(GL_QUADS);
         glTexCoord2f(0,0);
         glVertex3f(1.0,0.5,1.0);
@@ -121,9 +318,31 @@ struct Platform{
         glEnd();
         glDisable(GL_TEXTURE_2D);
         
+    
         
         glPopMatrix(); // end platform
+        //Maze
+        //MazeSides
+        Block sideR = {17.5,0,3,48};
+        Block sideL = {-17.5,0,3,48};
+        Block sideT = {0,-25.5,38,3,true};
+        Block sideB = {0,25.5,38,3,true};
+        sideR.draw();
+        sideL.draw();
+        sideT.draw();
+        sideB.draw();
         
+        for(int i = 0; i<22;i++){
+                Block b = bloacks[i];
+                b.draw();
+        }
+        
+        for(int i = 0; i<18;i++){
+                Hole h = holes[i];
+                h.draw();
+        }
+        //end MazeSides
+
         glPopMatrix(); // end world
     }
     
@@ -168,7 +387,7 @@ struct Ball{
         // Collision detection
         // platform
         
-        if (x + rad + delta_x < platform.width && x - rad + delta_x > -1 * platform.width){
+        if (x + delta_x < platform.width && x + delta_x > -1 * platform.width){
             x += delta_x;
         }else{
             delta_x = -1 * ELASTICITY * delta_x;
@@ -177,7 +396,7 @@ struct Ball{
         
         
         y = 0.0;
-        if (z + rad + delta_z < platform.width && z+delta_z - rad > -1 * platform.width){
+        if (z + delta_z < platform.width && z+delta_z > -1 * platform.width){
             z += delta_z;
         }else{
             delta_z = -1 * ELASTICITY * delta_z;
@@ -211,6 +430,7 @@ struct Ball{
         glColor3f(0.6, 0.6, 0.6);
         glTranslated(x,rad, z);
         
+       
         
         float rot_y = 0.0;
         float cos_z_2 = cosf(0.5*rot_z);
@@ -252,7 +472,7 @@ struct Ball{
         
     }
 };
-Ball ball = {/*weight*/2.0, 0.0, 5.0, 0.0, /*rad*/4.0, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {/*weight*/2.0, 0.0, 5.0, 0.0, /*rad*/1.4, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
@@ -266,7 +486,10 @@ void display(void)
     double factor = 1.0;
     glOrtho(10/factor, 10/factor, -10/factor, -10/factor, 0.1, 500);
     glMatrixMode(GL_MODELVIEW); // position and aim the camera
-    
+    glEnable( GL_LINE_SMOOTH );
+    glEnable( GL_POLYGON_SMOOTH );
+    glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
+    glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
     glEnable(GL_DEPTH_TEST);
     glLoadIdentity();
     gluLookAt(0.0,85.0,0.1, // eye
@@ -292,6 +515,7 @@ void display(void)
     glColor3f(0.0,0,0);
     glutWireCube(50);
     
+
     platform.draw();
     
     glRotatef(platform.roll, 0.0, 0.0, -1.0);
@@ -315,6 +539,8 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);
     platformTexture = loadTexture("/pngs/wood_texture.png",256,192);
     ballTexture = loadTexture("/pngs/chess_texture.png",1200,1200);
+    holeTexture = loadTexture("/pngs/holes_texture.png",200,200);
+    blockTexture= loadTexture("/pngs/block_texture.png",200,200);
     //    GLfloat light_diffuse[] = {0.5, 0.5, 0.5};
     //    float light_position[] = {10.0, 10.5, 10.5, 0.0};
     
