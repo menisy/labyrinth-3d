@@ -230,7 +230,8 @@ struct Block{
     }
 };
 Block bloacks[22] ={
-    {-13,-19,6,2,true},
+
+    {-14,-19,4,2,true},
     {-7,-18,2,12,false},
     {-4,-17,6,2,true},
     {-9,-11,6,2,true},
@@ -408,9 +409,8 @@ struct Ball{
         
         //        delta_x = -0.05;
         //        delta_z = 0.05;
-        rot_x = delta_x/rad;// XXX hardcoded, can get it physically
-        
-        rot_z = delta_z/rad; // XXX hardcoded, can get it physically
+        rot_x += delta_x*360/(2*PI*rad);
+        rot_z += delta_z*360/(2*PI*rad);
         
         //        if (rot_x > 360) rot_x -=360;
         //        if (rot_x < -360) rot_x +=360;
@@ -432,31 +432,31 @@ struct Ball{
         
        
         
-        float rot_y = 0.0;
-        float cos_z_2 = cosf(0.5*rot_z);
-		float cos_y_2 = cosf(0.5*0.0001);
-		float cos_x_2 = cosf(0.5*rot_x);
-        
-		float sin_z_2 = sinf(0.5*rot_z);
-		float sin_y_2 = sinf(0.5*rot_y);
-		float sin_x_2 = sinf(0.5*rot_x);
+//        float rot_y = 0.0;
+//        float cos_z_2 = cosf(0.5*rot_z);
+//		float cos_y_2 = cosf(0.5*0.0001);
+//		float cos_x_2 = cosf(0.5*rot_x);
+//        
+//		float sin_z_2 = sinf(0.5*rot_z);
+//		float sin_y_2 = sinf(0.5*rot_y);
+//		float sin_x_2 = sinf(0.5*rot_x);
         
 		// and now compute quaternion
-		float s   = cos_z_2*cos_y_2*cos_x_2 + sin_z_2*sin_y_2*sin_x_2;
-		float tmpx = cos_z_2*cos_y_2*sin_x_2 - sin_z_2*sin_y_2*cos_x_2;
-		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
-		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
+//		float s   = cos_z_2*cos_y_2*cos_x_2 + sin_z_2*sin_y_2*sin_x_2;
+//		float tmpx = cos_z_2*cos_y_2*sin_x_2 - sin_z_2*sin_y_2*cos_x_2;
+//		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
+//		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
         
-        glRotatef(s, tmpx, tmpy ,tmpz);
+//        glRotatef(s, tmpx, tmpy ,tmpz);
         // FIXME put both on only one rotatation
-        //        double ang = atan(rot_z/rot_x);
-        //        double rot = rot_x / cos(ang);
-        //
-        //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
-        //        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
-        //        glRotatef(rot_x,0,0,-1);
-        //        glRotatef(rot_z,1,0,0);
-        
+        double ang = atan(rot_z/rot_x);
+        double rot = rot_x / cos(ang);
+
+        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
+//        glRotatef(rot_x,0,0,-1);
+//        glRotatef(rot_z,1,0,0);
+    
         
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
