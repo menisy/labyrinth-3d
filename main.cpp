@@ -13,7 +13,7 @@ using namespace std;
 #define MAX_ROLL 15
 #define WINDOW_W 800
 #define WINDOW_H 600
-#define ELASTICITY 0.5// max 1.0
+#define ELASTICITY 0.3// max 1.0
 #define FRICTION 0.5 // max 1.0
 
 void anim(void);
@@ -371,12 +371,6 @@ struct Ball{
     double rot_z;
     
     void collide(Block *b){
-        //        printf("%f, %f, %f, %f\n", b->x, b->depth, x+rad, z);
-        
-        //        Block sideR = {17.5,0,3,48};
-        //        Block sideL = {-17.5,0,3,48};
-        //        Block sideT = {0,-25.5,38,3,true};
-        //        Block sideB = {0,25.5,38,3,true};
         
         float bx = b->x;
         float bz = b->z;
@@ -385,40 +379,24 @@ struct Ball{
         
         bool hitx=false, hitz= false;
         bool bhitx=false, bhitz=false;
-        printf("%.3f, bet %.3f, %.3f\n", x, bx-bw/2, bx+bw/2);
         if (x  -rad + delta_x + 0.1 < bx + bw/2 && x + rad + delta_x - 0.1> bx - bw/2){
-            //            printf("collision");
-            //            delta_x = -1 * ELASTICITY * delta_x;
-            //            x +=delta_x;
             hitx = true;
         }
         
-        printf("%.3f, bet %.3f, %.3f\n", z, bz+bd/2, bz-bd/2);
         if (z - rad + delta_z + 0.1 < bz +  bd/2 && z + rad + delta_z - 0.1 > bz - bd/2){
-            //            printf("collision");
-            //            delta_z = -1 * ELASTICITY * delta_z;
-            //            z += delta_z;
             hitz = true;
         }
         
         
         if (x - rad + 0.1 < bx + bw/2 && x + rad - 0.1> bx - bw/2){
-            //            printf("collision");
-            //            delta_x = -1 * ELASTICITY * delta_x;
-            //            x +=delta_x;
             bhitx = true;
         }
         
-        printf("%.3f, bet %.3f, %.3f\n", z, bz+bd/2, bz-bd/2);
         if (z - rad + 0.1 < bz +  bd/2 && z + rad - 0.1 > bz - bd/2){
-            //            printf("collision");
-            //            delta_z = -1 * ELASTICITY * delta_z;
-            //            z += delta_z;
             bhitz = true;
         }
         
         if (hitx && hitz){
-            printf("collision");
             if (bhitx)
                 delta_x = -1 * ELASTICITY * delta_x;
             if (bhitz)
@@ -432,8 +410,6 @@ struct Ball{
         if (!gameover) {
             
             
-            //        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
-            // f = m*a; a = f/m;
             double acc_x = (GRAV-FRICTION*GRAV) * sin(p.roll * PI/180)/(weight);
             double acc_y;
             
@@ -473,26 +449,15 @@ struct Ball{
             y = 0.0;
             // end platform
             
-            // circum = 2 pi r
-            
-            //        delta_x = -0.05;
-            //        delta_z = 0.05;
             rot_x += delta_x*360/(2*PI*rad);
             rot_z += delta_z*360/(2*PI*rad);
             
-            //            if (rot_x > 360) rot_x -=360;
-            //            if (rot_x < -360) rot_x +=360;
-            //            if (rot_z > 360) rot_z -=360;
-            //            if (rot_z < -360) rot_z +=360;
-            
-            //        printf("\t%.3f, %.3f\n", rot_x, rot_z);
             for(int i=0;i<18;i++){
                 
                 if((( x<holes[i].x+.7)&&( x>holes[i].x-.7))&&(( z<holes[i].z+.7)&&(z>holes[i].z-.7))){
                     x=holes[i].x;
                     z=holes[i].z;
                     
-                    printf(">>>>>>>>>>>>\t%.3f, %.3f\n", x, z);
                     if(holes[i].finish){
                         win = true;
                         printf(">>>>>>>> Win\n");
@@ -524,31 +489,15 @@ struct Ball{
         
         
         
-        //        float rot_y = 0.0;
-        //        float cos_z_2 = cosf(0.5*rot_z);
-        //		float cos_y_2 = cosf(0.5*0.0001);
-        //		float cos_x_2 = cosf(0.5*rot_x);
-        //
-        //		float sin_z_2 = sinf(0.5*rot_z);
-        //		float sin_y_2 = sinf(0.5*rot_y);
-        //		float sin_x_2 = sinf(0.5*rot_x);
-        
-		// and now compute quaternion
-        //		float s   = cos_z_2*cos_y_2*cos_x_2 + sin_z_2*sin_y_2*sin_x_2;
-        //		float tmpx = cos_z_2*cos_y_2*sin_x_2 - sin_z_2*sin_y_2*cos_x_2;
-        //		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
-        //		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
-        
-        //        glRotatef(s, tmpx, tmpy ,tmpz);
         // FIXME put both on only one rotatation
         double ang = atan(rot_z/rot_x);
         double rot = rot_x / cos(ang);
         
-        //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
         glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
-        //        glRotatef(rot_x,0,0,-1);
-        //        glRotatef(rot_z,1,0,0);
-        
+//        glRotatef(rot_x,0,0,-1);
+//        glRotatef(rot_z,1,0,0);
+    
         
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
@@ -633,17 +582,6 @@ int main(int argc, char **argv)
     ballTexture = loadTexture("/pngs/chess_texture.png",1200,1200);
     holeTexture = loadTexture("/pngs/holes_texture.png",200,200);
     blockTexture= loadTexture("/pngs/block_texture.png",200,200);
-    //    GLfloat light_diffuse[] = {0.5, 0.5, 0.5};
-    //    float light_position[] = {10.0, 10.5, 10.5, 0.0};
-    
-    
-    //    glLightfv(GL_LIGHT0, GL_AMBIENT, light_diffuse);
-    //    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    //    glShadeModel(GL_SMOOTH);
-    //
-    //    glEnable(GL_LIGHT0);
-    //    glEnable(GL_LIGHTING);
-    
     
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
@@ -716,7 +654,6 @@ void myMouse(int x, int y){
         y = 0;
     platform.roll = (x-temp_w)/temp_w * MAX_ROLL;
     platform.pitch = (y-temp_h)/temp_h * MAX_PITCH;
-    //    printf("%.3f, %.3f\n", platform.roll, platform.pitch);
 }
 
 void anim(){
