@@ -25,6 +25,8 @@ GLuint platformTexture;
 GLuint ballTexture;
 GLuint holeTexture;
 GLuint blockTexture;
+bool gameover;
+bool win;
 
 
 
@@ -54,7 +56,7 @@ float camera_z = 0.0;
 
 struct Point{
     float x,y,z;
-
+    
 };
 
 
@@ -64,28 +66,28 @@ struct Hole{
     bool finish;
     
     void draw(){
-    glColor3f(1, 1, 1);
-    glPushMatrix();
-    GLUquadricObj * qobj;
-    qobj = gluNewQuadric();
-    gluQuadricDrawStyle( qobj, GLU_FILL); 
-    gluQuadricNormals( qobj, GLU_SMOOTH); 
-    gluQuadricTexture(qobj,GL_TRUE); 
-    gluQuadricOrientation( qobj,GLU_OUTSIDE);
-    glEnable(GL_TEXTURE_2D);
-    if(!finish){
-        glBindTexture(GL_TEXTURE_2D, holeTexture);
-    }else{
-        glBindTexture(GL_TEXTURE_2D, ballTexture);
-    }
-    glTranslated(x,0.1 ,z);
-    glRotated(90, 1, 0, 0);
-    glRotated(180, 0, 0, 1);
-    gluDisk(qobj, 0, 1.5, 20,20);
-    gluDeleteQuadric(qobj);
-    glDisable(GL_TEXTURE_2D);
-    glPopMatrix();
-   
+        glColor3f(1, 1, 1);
+        glPushMatrix();
+        GLUquadricObj * qobj;
+        qobj = gluNewQuadric();
+        gluQuadricDrawStyle( qobj, GLU_FILL); 
+        gluQuadricNormals( qobj, GLU_SMOOTH); 
+        gluQuadricTexture(qobj,GL_TRUE); 
+        gluQuadricOrientation( qobj,GLU_OUTSIDE);
+        glEnable(GL_TEXTURE_2D);
+        if(!finish){
+            glBindTexture(GL_TEXTURE_2D, holeTexture);
+        }else{
+            glBindTexture(GL_TEXTURE_2D, ballTexture);
+        }
+        glTranslated(x,0.1 ,z);
+        glRotated(90, 1, 0, 0);
+        glRotated(180, 0, 0, 1);
+        gluDisk(qobj, 0, 1.5, 20,20);
+        gluDeleteQuadric(qobj);
+        glDisable(GL_TEXTURE_2D);
+        glPopMatrix();
+        
     }
 };
 Hole holes[18]= {
@@ -126,55 +128,55 @@ struct Block{
         glTranslated(x,1.5,z);
         glScaled(width, 4,depth);
         if(horizontal){
-        glBegin(GL_QUADS);
-        glTexCoord2f(0,0);
-        glVertex3f(0.5,0.5,0.5);
-        glTexCoord2f(1,0);
-        glVertex3f(0.5,0.5,-0.5);
-        glTexCoord2f(0,1);
-        glVertex3f(-0.5,0.5,-0.5);
-        glTexCoord2f(1,1);
-        glVertex3f(-0.5,0.5,0.5);
-        glEnd();
-        glBegin(GL_QUADS);
-        glVertex3f(0.5,0.5,0.5);
-        glVertex3f(0.5,0.5,-0.5);
-        glVertex3f(0.5,-0.5,-0.5);
-        glVertex3f(0.5,-0.5,0.5);
-        glEnd();
-        glBegin(GL_QUADS);
-        glVertex3f(-0.5,-0.5,-0.5);
-        glVertex3f(-0.5,-0.5,0.5);
-        glVertex3f(-0.5,0.5,0.5);
-        glVertex3f(-0.5,0.5,-0.5);
-        glEnd();
-        glBegin(GL_QUADS);
-        glTexCoord2f(1,0);
-        glVertex3f(0.5,-0.5,0.5);
-        glTexCoord2f(0,1);
-        glVertex3f(-0.5,-0.5,0.5);
-        glTexCoord2f(1,1);
-        glVertex3f(-0.5,0.5,0.5);
-        glTexCoord2f(0,0);
-        glVertex3f(0.5,0.5,0.5);
-        glEnd();
-        glBegin(GL_QUADS);
-        glTexCoord2f(1,1);
-        glVertex3f(-0.5,-0.5,-0.5);
-        glTexCoord2f(0,0);
-        glVertex3f(0.5,-0.5,-0.5);
-        glTexCoord2f(1,0);
-        glVertex3f(0.5,0.5,-0.5);
-        glTexCoord2f(0,1);
-        glVertex3f(-0.5,0.5,-0.5);
-        glEnd();
-        glBegin(GL_QUADS);
-        glVertex3f(0.5,-0.5,0.5);
-        glVertex3f(0.5,-0.5,-0.5);
-        glVertex3f(-0.5,-0.5,-0.5);
-        glVertex3f(-0.5,-0.5,0.5);
-        glEnd();
-        glDisable(GL_TEXTURE_2D);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0,0);
+            glVertex3f(0.5,0.5,0.5);
+            glTexCoord2f(1,0);
+            glVertex3f(0.5,0.5,-0.5);
+            glTexCoord2f(0,1);
+            glVertex3f(-0.5,0.5,-0.5);
+            glTexCoord2f(1,1);
+            glVertex3f(-0.5,0.5,0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glVertex3f(0.5,0.5,0.5);
+            glVertex3f(0.5,0.5,-0.5);
+            glVertex3f(0.5,-0.5,-0.5);
+            glVertex3f(0.5,-0.5,0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glVertex3f(-0.5,-0.5,-0.5);
+            glVertex3f(-0.5,-0.5,0.5);
+            glVertex3f(-0.5,0.5,0.5);
+            glVertex3f(-0.5,0.5,-0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glTexCoord2f(1,0);
+            glVertex3f(0.5,-0.5,0.5);
+            glTexCoord2f(0,1);
+            glVertex3f(-0.5,-0.5,0.5);
+            glTexCoord2f(1,1);
+            glVertex3f(-0.5,0.5,0.5);
+            glTexCoord2f(0,0);
+            glVertex3f(0.5,0.5,0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glTexCoord2f(1,1);
+            glVertex3f(-0.5,-0.5,-0.5);
+            glTexCoord2f(0,0);
+            glVertex3f(0.5,-0.5,-0.5);
+            glTexCoord2f(1,0);
+            glVertex3f(0.5,0.5,-0.5);
+            glTexCoord2f(0,1);
+            glVertex3f(-0.5,0.5,-0.5);
+            glEnd();
+            glBegin(GL_QUADS);
+            glVertex3f(0.5,-0.5,0.5);
+            glVertex3f(0.5,-0.5,-0.5);
+            glVertex3f(-0.5,-0.5,-0.5);
+            glVertex3f(-0.5,-0.5,0.5);
+            glEnd();
+            glDisable(GL_TEXTURE_2D);
         }else{
             glBegin(GL_QUADS);
             glTexCoord2f(1,1);
@@ -230,7 +232,7 @@ struct Block{
     }
 };
 Block blocks[22] ={
-
+    
     {-14,-19,4,2,true},
     {-7,-18,2,12,false},
     {-4,-17,6,2,true},
@@ -320,7 +322,7 @@ struct Platform{
         glEnd();
         glDisable(GL_TEXTURE_2D);
         
-    
+        
         
         glPopMatrix(); // end platform
         //Maze
@@ -335,16 +337,16 @@ struct Platform{
         sideB.draw();
         
         for(int i = 0; i<22;i++){
-                Block b = blocks[i];
-                b.draw();
+            Block b = blocks[i];
+            b.draw();
         }
         
         for(int i = 0; i<18;i++){
-                Hole h = holes[i];
-                h.draw();
+            Hole h = holes[i];
+            h.draw();
         }
         //end MazeSides
-
+        
         glPopMatrix(); // end world
     }
     
@@ -369,14 +371,12 @@ struct Ball{
     double rot_z;
     
     void collide(Block *b){
-        int dx[4] = {1,1,-1,-1};
-        int dy[4] = {1,-1,1,-1};
-//        printf("%f, %f, %f, %f\n", b->x, b->depth, x+rad, z);
+        //        printf("%f, %f, %f, %f\n", b->x, b->depth, x+rad, z);
         
-//        Block sideR = {17.5,0,3,48};
-//        Block sideL = {-17.5,0,3,48};
-//        Block sideT = {0,-25.5,38,3,true};
-//        Block sideB = {0,25.5,38,3,true};
+        //        Block sideR = {17.5,0,3,48};
+        //        Block sideL = {-17.5,0,3,48};
+        //        Block sideT = {0,-25.5,38,3,true};
+        //        Block sideB = {0,25.5,38,3,true};
         
         float bx = b->x;
         float bz = b->z;
@@ -387,38 +387,38 @@ struct Ball{
         bool bhitx=false, bhitz=false;
         printf("%.3f, bet %.3f, %.3f\n", x, bx-bw/2, bx+bw/2);
         if (x  -rad + delta_x + 0.1 < bx + bw/2 && x + rad + delta_x - 0.1> bx - bw/2){
-//            printf("collision");
-//            delta_x = -1 * ELASTICITY * delta_x;
-//            x +=delta_x;
+            //            printf("collision");
+            //            delta_x = -1 * ELASTICITY * delta_x;
+            //            x +=delta_x;
             hitx = true;
         }
         
         printf("%.3f, bet %.3f, %.3f\n", z, bz+bd/2, bz-bd/2);
         if (z - rad + delta_z + 0.1 < bz +  bd/2 && z + rad + delta_z - 0.1 > bz - bd/2){
-//            printf("collision");
-//            delta_z = -1 * ELASTICITY * delta_z;
-//            z += delta_z;
+            //            printf("collision");
+            //            delta_z = -1 * ELASTICITY * delta_z;
+            //            z += delta_z;
             hitz = true;
         }
         
-
+        
         if (x - rad + 0.1 < bx + bw/2 && x + rad - 0.1> bx - bw/2){
-//            printf("collision");
-//            delta_x = -1 * ELASTICITY * delta_x;
-//            x +=delta_x;
+            //            printf("collision");
+            //            delta_x = -1 * ELASTICITY * delta_x;
+            //            x +=delta_x;
             bhitx = true;
         }
         
         printf("%.3f, bet %.3f, %.3f\n", z, bz+bd/2, bz-bd/2);
         if (z - rad + 0.1 < bz +  bd/2 && z + rad - 0.1 > bz - bd/2){
-//            printf("collision");
-//            delta_z = -1 * ELASTICITY * delta_z;
-//            z += delta_z;
+            //            printf("collision");
+            //            delta_z = -1 * ELASTICITY * delta_z;
+            //            z += delta_z;
             bhitz = true;
         }
         
         if (hitx && hitz){
-           printf("collision");
+            printf("collision");
             if (bhitx)
                 delta_x = -1 * ELASTICITY * delta_x;
             if (bhitz)
@@ -429,60 +429,87 @@ struct Ball{
     }
     void update(Platform p){
         
-        //        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
-        // f = m*a; a = f/m;
-        double acc_x = (GRAV-FRICTION*GRAV) * sin(p.roll * PI/180)/(weight);
-        double acc_y;
-        
-        double acc_y_1 = -1 * GRAV * cos(p.roll * PI/180)/weight;
-        double acc_y_2 = -1 * GRAV * cos(p.pitch * PI/180)/weight;
-        acc_y = acc_y_1+acc_y_2;
-        
-        double acc_z = (GRAV-FRICTION*GRAV) * sin(p.pitch * PI/180)/(weight);
-        
-        delta_x += acc_x;
-        //        delta_y = acc_y;
-        delta_z += acc_z;
-        
-        
-        // Collision detection
-        // platform
-        
-        if (x + rad + delta_x < 17.5 - 1.5 && x - rad + delta_x > -1 * 17.5 + 1.5){
-            x += delta_x;
-        }else{
-            delta_x = -1 * ELASTICITY * delta_x;
-            x +=delta_x;
+        if (!gameover) {
+            
+            
+            //        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
+            // f = m*a; a = f/m;
+            double acc_x = (GRAV-FRICTION*GRAV) * sin(p.roll * PI/180)/(weight);
+            double acc_y;
+            
+            double acc_y_1 = -1 * GRAV * cos(p.roll * PI/180)/weight;
+            double acc_y_2 = -1 * GRAV * cos(p.pitch * PI/180)/weight;
+            acc_y = acc_y_1+acc_y_2;
+            
+            double acc_z = (GRAV-FRICTION*GRAV) * sin(p.pitch * PI/180)/(weight);
+            
+            delta_x += acc_x;
+            //        delta_y = acc_y;
+            delta_z += acc_z;
+            
+            
+            // Collision detection
+            // platform
+            
+            if (x + rad + delta_x < 17.5 - 1.5 && x - rad + delta_x > -1 * 17.5 + 1.5){
+                x += delta_x;
+            }else{
+                delta_x = -1 * ELASTICITY * delta_x;
+                x +=delta_x;
+            }
+            
+            if (z + rad + delta_z < 25.5 - 1.5 && z - rad +delta_z > -1 * 25.5+1.5){
+                z += delta_z;
+            }else{
+                delta_z = -1 * ELASTICITY * delta_z;
+                z += delta_z;
+            }
+            
+            for (int i=0;i  < /*blocks*/ 22; i++){
+                collide(&blocks[i]);
+            }
+            
+            
+            y = 0.0;
+            // end platform
+            
+            // circum = 2 pi r
+            
+            //        delta_x = -0.05;
+            //        delta_z = 0.05;
+            rot_x += delta_x*360/(2*PI*rad);
+            rot_z += delta_z*360/(2*PI*rad);
+            
+            //        if (rot_x > 360) rot_x -=360;
+            //        if (rot_x < -360) rot_x +=360;
+            //        if (rot_z > 360) rot_z -=360;
+            //        if (rot_z < -360) rot_z +=360;
+            
+            //        printf("\t%.3f, %.3f\n", rot_x, rot_z);
+            for(int i=0;i<18;i++){
+                
+                if((( x<holes[i].x+.7)&&( x>holes[i].x-.7))&&(( z<holes[i].z+.7)&&(z>holes[i].z-.7))){
+                    x=holes[i].x;
+                    z=holes[i].z;
+                    
+                    printf(">>>>>>>>>>>>\t%.3f, %.3f\n", x, z);
+                    if(holes[i].finish){
+                        win = true;
+                        printf(">>>>>>>> Win\n");
+                    }else{
+                        printf(">>>>>>>> Lost\n");
+                    }
+                    gameover=true;
+                }
+                
+                
+            }
+        }else {
+            y=-0.4;
+            rad=0.85;
         }
         
-        if (z + rad + delta_z < 25.5 - 1.5 && z - rad +delta_z > -1 * 25.5+1.5){
-            z += delta_z;
-        }else{
-            delta_z = -1 * ELASTICITY * delta_z;
-            z += delta_z;
-        }
         
-        for (int i=0;i  < /*blocks*/ 22; i++){
-            collide(&blocks[i]);
-        }
-        
-        
-        y = 0.0;
-        // end platform
-        
-        // circum = 2 pi r
-        
-//        delta_x = -0.05;
-//        delta_z = 0.05;
-        rot_x += delta_x*360/(2*PI*rad);
-        rot_z += delta_z*360/(2*PI*rad);
-        
-//        if (rot_x > 360) rot_x -=360;
-//        if (rot_x < -360) rot_x +=360;
-//        if (rot_z > 360) rot_z -=360;
-//        if (rot_z < -360) rot_z +=360;
-    
-//        printf("\t%.3f, %.3f\n", rot_x, rot_z);
         
     }
     
@@ -495,33 +522,33 @@ struct Ball{
         glColor3f(0.6, 0.6, 0.6);
         glTranslated(x,rad, z);
         
-       
         
-//        float rot_y = 0.0;
-//        float cos_z_2 = cosf(0.5*rot_z);
-//		float cos_y_2 = cosf(0.5*0.0001);
-//		float cos_x_2 = cosf(0.5*rot_x);
-//        
-//		float sin_z_2 = sinf(0.5*rot_z);
-//		float sin_y_2 = sinf(0.5*rot_y);
-//		float sin_x_2 = sinf(0.5*rot_x);
+        
+        //        float rot_y = 0.0;
+        //        float cos_z_2 = cosf(0.5*rot_z);
+        //		float cos_y_2 = cosf(0.5*0.0001);
+        //		float cos_x_2 = cosf(0.5*rot_x);
+        //        
+        //		float sin_z_2 = sinf(0.5*rot_z);
+        //		float sin_y_2 = sinf(0.5*rot_y);
+        //		float sin_x_2 = sinf(0.5*rot_x);
         
 		// and now compute quaternion
-//		float s   = cos_z_2*cos_y_2*cos_x_2 + sin_z_2*sin_y_2*sin_x_2;
-//		float tmpx = cos_z_2*cos_y_2*sin_x_2 - sin_z_2*sin_y_2*cos_x_2;
-//		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
-//		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
+        //		float s   = cos_z_2*cos_y_2*cos_x_2 + sin_z_2*sin_y_2*sin_x_2;
+        //		float tmpx = cos_z_2*cos_y_2*sin_x_2 - sin_z_2*sin_y_2*cos_x_2;
+        //		float tmpy = cos_z_2*sin_y_2*cos_x_2 + sin_z_2*cos_y_2*sin_x_2;
+        //		float tmpz = sin_z_2*cos_y_2*cos_x_2 - cos_z_2*sin_y_2*sin_x_2;
         
-//        glRotatef(s, tmpx, tmpy ,tmpz);
+        //        glRotatef(s, tmpx, tmpy ,tmpz);
         // FIXME put both on only one rotatation
         double ang = atan(rot_z/rot_x);
         double rot = rot_x / cos(ang);
-
-//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+        
+        //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
         glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
-//        glRotatef(rot_x,0,0,-1);
-//        glRotatef(rot_z,1,0,0);
-    
+        //        glRotatef(rot_x,0,0,-1);
+        //        glRotatef(rot_z,1,0,0);
+        
         
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
@@ -537,7 +564,7 @@ struct Ball{
         
     }
 };
-Ball ball = {/*weight*/2.0, -14, 20, 0.0, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {/*weight*/2.0, -14, 0, -22, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
@@ -580,7 +607,7 @@ void display(void)
     glColor3f(0.0,0,0);
     glutWireCube(50);
     
-
+    
     platform.draw();
     
     glRotatef(platform.roll, 0.0, 0.0, -1.0);
@@ -662,12 +689,13 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             camera_z= (int)camera_z %360;
             break;
         case 'r':
-            ball.x = 0;
-            ball.z = 0;
+            ball.x = -14;
+            ball.z = -22;
             ball.delta_x = 0;
             ball.delta_z = 0;
             ball.rot_x = 0;
             ball.rot_z = 0;
+            gameover=false;
             break;
     }
 }
