@@ -13,8 +13,8 @@ using namespace std;
 #define MAX_ROLL 15
 #define WINDOW_W 800
 #define WINDOW_H 600
-#define ELASTICITY 0.1// max 1.0
-#define FRICTION 0.0 // max 1.0
+#define ELASTICITY 0.5// max 1.0
+#define FRICTION 0.5 // max 1.0
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -229,7 +229,7 @@ struct Block{
         glPopMatrix();
     }
 };
-Block bloacks[22] ={
+Block blocks[22] ={
 
     {-14,-19,4,2,true},
     {-7,-18,2,12,false},
@@ -252,7 +252,8 @@ Block bloacks[22] ={
     {10,0,2,6,false},
     {10,9,2,4,false},
     {10,17,2,4,false},
-    {13.5,17,5,2,true}};
+    {13.5,17,5,2,true}
+};
 struct Platform{
     float width;
     float roll;
@@ -334,7 +335,7 @@ struct Platform{
         sideB.draw();
         
         for(int i = 0; i<22;i++){
-                Block b = bloacks[i];
+                Block b = blocks[i];
                 b.draw();
         }
         
@@ -367,6 +368,65 @@ struct Ball{
     double rot_x;
     double rot_z;
     
+    void collide(Block *b){
+        int dx[4] = {1,1,-1,-1};
+        int dy[4] = {1,-1,1,-1};
+//        printf("%f, %f, %f, %f\n", b->x, b->depth, x+rad, z);
+        
+//        Block sideR = {17.5,0,3,48};
+//        Block sideL = {-17.5,0,3,48};
+//        Block sideT = {0,-25.5,38,3,true};
+//        Block sideB = {0,25.5,38,3,true};
+        
+        float bx = b->x;
+        float bz = b->z;
+        float bw = b->width;
+        float bd = b->depth;
+        
+        bool hitx=false, hitz= false;
+        bool bhitx=false, bhitz=false;
+        printf("%.3f, bet %.3f, %.3f\n", x, bx-bw/2, bx+bw/2);
+        if (x  -rad + delta_x + 0.1 < bx + bw/2 && x + rad + delta_x - 0.1> bx - bw/2){
+//            printf("collision");
+//            delta_x = -1 * ELASTICITY * delta_x;
+//            x +=delta_x;
+            hitx = true;
+        }
+        
+        printf("%.3f, bet %.3f, %.3f\n", z, bz+bd/2, bz-bd/2);
+        if (z - rad + delta_z + 0.1 < bz +  bd/2 && z + rad + delta_z - 0.1 > bz - bd/2){
+//            printf("collision");
+//            delta_z = -1 * ELASTICITY * delta_z;
+//            z += delta_z;
+            hitz = true;
+        }
+        
+
+        if (x - rad + 0.1 < bx + bw/2 && x + rad - 0.1> bx - bw/2){
+//            printf("collision");
+//            delta_x = -1 * ELASTICITY * delta_x;
+//            x +=delta_x;
+            bhitx = true;
+        }
+        
+        printf("%.3f, bet %.3f, %.3f\n", z, bz+bd/2, bz-bd/2);
+        if (z - rad + 0.1 < bz +  bd/2 && z + rad - 0.1 > bz - bd/2){
+//            printf("collision");
+//            delta_z = -1 * ELASTICITY * delta_z;
+//            z += delta_z;
+            bhitz = true;
+        }
+        
+        if (hitx && hitz){
+           printf("collision");
+            if (bhitx)
+                delta_x = -1 * ELASTICITY * delta_x;
+            if (bhitz)
+                delta_z = -1 * ELASTICITY * delta_z;
+            
+        }
+        
+    }
     void update(Platform p){
         
         //        printf("%f, %f, %f\n", delta_x, delta_y, delta_z);
@@ -388,36 +448,41 @@ struct Ball{
         // Collision detection
         // platform
         
-        if (x + delta_x < platform.width && x + delta_x > -1 * platform.width){
+        if (x + rad + delta_x < 17.5 - 1.5 && x - rad + delta_x > -1 * 17.5 + 1.5){
             x += delta_x;
         }else{
             delta_x = -1 * ELASTICITY * delta_x;
             x +=delta_x;
         }
         
-        
-        y = 0.0;
-        if (z + delta_z < platform.width && z+delta_z > -1 * platform.width){
+        if (z + rad + delta_z < 25.5 - 1.5 && z - rad +delta_z > -1 * 25.5+1.5){
             z += delta_z;
         }else{
             delta_z = -1 * ELASTICITY * delta_z;
             z += delta_z;
         }
+        
+        for (int i=0;i  < /*blocks*/ 22; i++){
+            collide(&blocks[i]);
+        }
+        
+        
+        y = 0.0;
         // end platform
         
         // circum = 2 pi r
         
-        //        delta_x = -0.05;
-        //        delta_z = 0.05;
+//        delta_x = -0.05;
+//        delta_z = 0.05;
         rot_x += delta_x*360/(2*PI*rad);
         rot_z += delta_z*360/(2*PI*rad);
         
-        //        if (rot_x > 360) rot_x -=360;
-        //        if (rot_x < -360) rot_x +=360;
-        //        if (rot_z > 360) rot_z -=360;
-        //        if (rot_z < -360) rot_z +=360;
-        
-        printf("\t%.3f, %.3f\n", rot_x, rot_z);
+//        if (rot_x > 360) rot_x -=360;
+//        if (rot_x < -360) rot_x +=360;
+//        if (rot_z > 360) rot_z -=360;
+//        if (rot_z < -360) rot_z +=360;
+    
+//        printf("\t%.3f, %.3f\n", rot_x, rot_z);
         
     }
     
@@ -452,7 +517,7 @@ struct Ball{
         double ang = atan(rot_z/rot_x);
         double rot = rot_x / cos(ang);
 
-        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
         glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
 //        glRotatef(rot_x,0,0,-1);
 //        glRotatef(rot_z,1,0,0);
@@ -472,7 +537,7 @@ struct Ball{
         
     }
 };
-Ball ball = {/*weight*/2.0, 0.0, 5.0, 0.0, /*rad*/1.4, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {/*weight*/2.0, -14, 20, 0.0, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
