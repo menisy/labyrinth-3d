@@ -12,7 +12,7 @@ using namespace std;
 #define MAX_PITCH 15
 #define MAX_ROLL 15
 #define WINDOW_W 1024
-#define WINDOW_H 768 
+#define WINDOW_H 768
 #define ELASTICITY 0.2// max 1.0
 #define FRICTION 0.5 // max 1.0
 
@@ -425,7 +425,7 @@ struct Ball{
             //        delta_y = acc_y;
             delta_z += acc_z;
             
-            printf("%f, %f, %f, %f\n", x,z, delta_x, delta_z);
+//            printf("%f, %f, %f, %f\n", x,z, delta_x, delta_z);
             
             // Collision detection
             // platform
