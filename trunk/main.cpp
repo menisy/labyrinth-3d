@@ -8,12 +8,12 @@ using namespace std;
 
 /* ################################ HEADERS ######################## */
 #define PI 3.14159265
-#define GRAV 0.010
+#define GRAV 0.020
 #define MAX_PITCH 15
 #define MAX_ROLL 15
-#define WINDOW_W 800
-#define WINDOW_H 600
-#define ELASTICITY 0.3// max 1.0
+#define WINDOW_W 1024
+#define WINDOW_H 768 
+#define ELASTICITY 0.2// max 1.0
 #define FRICTION 0.5 // max 1.0
 
 void anim(void);
@@ -27,6 +27,7 @@ GLuint holeTexture;
 GLuint blockTexture;
 bool gameover;
 bool win;
+bool karam_mode;
 
 
 
@@ -379,27 +380,28 @@ struct Ball{
         
         bool hitx=false, hitz= false;
         bool bhitx=false, bhitz=false;
-        if (x  -rad + delta_x + 0.1 < bx + bw/2 && x + rad + delta_x - 0.1> bx - bw/2){
+        if (x  -rad + delta_x< bx + bw/2 && x + rad + delta_x> bx - bw/2){
             hitx = true;
         }
         
-        if (z - rad + delta_z + 0.1 < bz +  bd/2 && z + rad + delta_z - 0.1 > bz - bd/2){
+        if (z - rad + delta_z< bz +  bd/2 && z + rad + delta_z> bz - bd/2){
             hitz = true;
         }
         
         
-        if (x - rad + 0.1 < bx + bw/2 && x + rad - 0.1> bx - bw/2){
+        if (x - rad< bx + bw/2 && x + rad> bx - bw/2){
             bhitx = true;
         }
         
-        if (z - rad + 0.1 < bz +  bd/2 && z + rad - 0.1 > bz - bd/2){
+        if (z - rad< bz +  bd/2 && z + rad> bz - bd/2){
             bhitz = true;
         }
         
         if (hitx && hitz){
-            if (bhitx)
-                delta_x = -1 * ELASTICITY * delta_x;
+//            printf("%d, %d, %d, %d\n", hitx, hitz, bhitx, bhitz);
             if (bhitz)
+                delta_x = -1 * ELASTICITY * delta_x;
+            if (bhitx)
                 delta_z = -1 * ELASTICITY * delta_z;
             
         }
@@ -423,19 +425,20 @@ struct Ball{
             //        delta_y = acc_y;
             delta_z += acc_z;
             
+            printf("%f, %f, %f, %f\n", x,z, delta_x, delta_z);
             
             // Collision detection
             // platform
             
             if (x + rad + delta_x < 17.5 - 1.5 && x - rad + delta_x > -1 * 17.5 + 1.5){
-                x += delta_x;
+//                x += delta_x;
             }else{
                 delta_x = -1 * ELASTICITY * delta_x;
                 x +=delta_x;
             }
             
             if (z + rad + delta_z < 25.5 - 1.5 && z - rad +delta_z > -1 * 25.5+1.5){
-                z += delta_z;
+//                z += delta_z;
             }else{
                 delta_z = -1 * ELASTICITY * delta_z;
                 z += delta_z;
@@ -446,6 +449,8 @@ struct Ball{
             }
             
             
+            x += delta_x;
+            z += delta_z;
             y = 0.0;
             // end platform
             
@@ -454,7 +459,7 @@ struct Ball{
             
             for(int i=0;i<18;i++){
                 
-                if((( x<holes[i].x+.7)&&( x>holes[i].x-.7))&&(( z<holes[i].z+.7)&&(z>holes[i].z-.7))){
+                if((( x<holes[i].x+.7)&&( x>holes[i].x-.7))&&(( z<holes[i].z+.7)&&(z>holes[i].z-.7)) & !karam_mode){
                     x=holes[i].x;
                     z=holes[i].z;
                     
@@ -466,16 +471,11 @@ struct Ball{
                     }
                     gameover=true;
                 }
-                
-                
             }
         }else {
             y=-0.4;
             rad=0.85;
         }
-        
-        
-        
     }
     
     void draw(){
@@ -499,7 +499,7 @@ struct Ball{
 //        glRotatef(rot_z,1,0,0);
     
         
-        GLUquadricObj * qobj;
+        GLUquadricObj * qobj;    
         qobj = gluNewQuadric();
         gluQuadricDrawStyle(qobj,GLU_FILL);
         gluQuadricTexture(qobj,GL_TRUE);
@@ -517,6 +517,7 @@ Ball ball = {/*weight*/2.0, -14, 0, -22, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0};
 
 void display(void)
 {
+    glutSetCursor(GLUT_CURSOR_NONE);
     glMatrixMode(GL_PROJECTION); // set the view volume shape
     glLoadIdentity();
     gluPerspective(50, //Field of view
@@ -572,7 +573,6 @@ int main(int argc, char **argv)
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH );
-    
     glutInitWindowSize(WINDOW_W, WINDOW_H);
     
     glutInitWindowPosition(0, 0);
@@ -625,6 +625,9 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
         case 'Z':
             camera_z -= 5;
             camera_z= (int)camera_z %360;
+            break;
+        case 'k':
+            karam_mode = !karam_mode;
             break;
         case 'r':
             ball.x = -14;
