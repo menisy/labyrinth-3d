@@ -70,9 +70,9 @@ struct Hole{
         glPushMatrix();
         GLUquadricObj * qobj;
         qobj = gluNewQuadric();
-        gluQuadricDrawStyle( qobj, GLU_FILL); 
-        gluQuadricNormals( qobj, GLU_SMOOTH); 
-        gluQuadricTexture(qobj,GL_TRUE); 
+        gluQuadricDrawStyle( qobj, GLU_FILL);
+        gluQuadricNormals( qobj, GLU_SMOOTH);
+        gluQuadricTexture(qobj,GL_TRUE);
         gluQuadricOrientation( qobj,GLU_OUTSIDE);
         glEnable(GL_TEXTURE_2D);
         if(!finish){
@@ -480,10 +480,10 @@ struct Ball{
             rot_x += delta_x*360/(2*PI*rad);
             rot_z += delta_z*360/(2*PI*rad);
             
-            //        if (rot_x > 360) rot_x -=360;
-            //        if (rot_x < -360) rot_x +=360;
-            //        if (rot_z > 360) rot_z -=360;
-            //        if (rot_z < -360) rot_z +=360;
+            //            if (rot_x > 360) rot_x -=360;
+            //            if (rot_x < -360) rot_x +=360;
+            //            if (rot_z > 360) rot_z -=360;
+            //            if (rot_z < -360) rot_z +=360;
             
             //        printf("\t%.3f, %.3f\n", rot_x, rot_z);
             for(int i=0;i<18;i++){
@@ -528,7 +528,7 @@ struct Ball{
         //        float cos_z_2 = cosf(0.5*rot_z);
         //		float cos_y_2 = cosf(0.5*0.0001);
         //		float cos_x_2 = cosf(0.5*rot_x);
-        //        
+        //
         //		float sin_z_2 = sinf(0.5*rot_z);
         //		float sin_y_2 = sinf(0.5*rot_y);
         //		float sin_x_2 = sinf(0.5*rot_x);
