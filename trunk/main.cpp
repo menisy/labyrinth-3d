@@ -9,7 +9,7 @@ using namespace std;
 
 /* ################################ HEADERS ######################## */
 #define PI 3.14159265
-#define GRAV 0.020
+#define GRAV 0.010
 #define MAX_PITCH 15
 #define MAX_ROLL 15
 #define WINDOW_W 1024
@@ -31,7 +31,6 @@ bool gameover;
 bool win;
 bool karam_mode;
 irrklang::ISoundEngine* engine;
-
 
 
 
@@ -434,6 +433,11 @@ struct Ball{
             //        delta_y = acc_y;
             delta_z += acc_z;
             
+            if (fabs(delta_x) < 1e-4)
+                delta_x = 0;
+            if (fabs(delta_z) < 1e-4)
+                delta_z = 0;
+                
             
             // collision detection 
             for (int i=0;i  < /*blocks*/ 26; i++){
@@ -489,10 +493,10 @@ struct Ball{
         double ang = atan(rot_z/rot_x);
         double rot = rot_x / cos(ang);
         
-        //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
-        //        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
-        glRotatef(rot_x,0,0,-1);
+//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+//        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
         glRotatef(rot_z,1,0,0);
+        glRotatef(rot_x,0,0,-1);
         
         
         GLUquadricObj * qobj;    
@@ -531,8 +535,12 @@ void display(void)
     glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
     glEnable(GL_DEPTH_TEST);
     glLoadIdentity();
-    gluLookAt(0.0,85.0,0.1, // eye
-              0.0,0.0,0.0,
+//    gluLookAt(0.0,85.0,0.1, // eye
+//              0.0,0.0,0.0,
+//              0.0, 1.0, 0.0); // normal
+    
+    gluLookAt(ball.x - ball.delta_x ,15,ball.z - ball.delta_z, // eye
+              ball.x,ball.y,ball.z,
               0.0, 1.0, 0.0); // normal
     
     glRotatef(camera_x, 1.0, 0.0, .0);
