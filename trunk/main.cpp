@@ -433,30 +433,12 @@ struct Ball{
             delta_z += acc_z;
             
             
-            //            printf("%f, %f, %f, %f\n", x,z, delta_x, delta_z);
-            
-            // Collision detection
-            // platform
-            
-            //            if (x + rad + delta_x < 17.5 - 1.5 && x - rad + delta_x > -1 * 17.5 + 1.5){
-            //                //                x += delta_x;
-            //            }else{
-            //                delta_x = -1 * ELASTICITY * delta_x;
-            //                x +=delta_x;
-            //            }
-            //            
-            //            if (z + rad + delta_z < 25.5 - 1.5 && z - rad +delta_z > -1 * 25.5+1.5){
-            //                //                z += delta_z;
-            //            }else{
-            //                delta_z = -1 * ELASTICITY * delta_z;
-            //                z += delta_z;
-            //            }
-            //            
+            // collision detection 
             for (int i=0;i  < /*blocks*/ 26; i++){
                 collide(&blocks[i],i);
             }
             
-            printf("%f, %f, %f, %f\n", delta_x,delta_z, acc_x, acc_z);
+//            printf("%f, %f, %f, %f\n", delta_x,delta_z, acc_x, acc_z);
             x += delta_x;
             z += delta_z;
             
@@ -468,7 +450,7 @@ struct Ball{
             
             for(int i=0;i<18;i++){
                 
-                if((( x<holes[i].x+.7)&&( x>holes[i].x-.7))&&(( z<holes[i].z+.7)&&(z>holes[i].z-.7)) & !karam_mode){
+                if((( x<holes[i].x+0.9)&&( x>holes[i].x-0.9))&&(( z<holes[i].z+0.9)&&(z>holes[i].z-0.9)) & !karam_mode){
                     x=holes[i].x;
                     z=holes[i].z;
                     
@@ -504,10 +486,10 @@ struct Ball{
         double rot = rot_x / cos(ang);
         
         //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
-        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
-        //        glRotatef(rot_x,0,0,-1);
-        //        glRotatef(rot_z,1,0,0);
-        
+//        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
+        glRotatef(rot_x,0,0,-1);
+        glRotatef(rot_z,1,0,0);
+
         
         GLUquadricObj * qobj;    
         qobj = gluNewQuadric();
