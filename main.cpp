@@ -4,6 +4,7 @@
 #include <math.h>
 #include "TextureLoader.h"
 #include "irrKlang.h"
+#include <sstream>
 
 using namespace std;
 
@@ -30,6 +31,8 @@ GLuint finishTexture;
 bool gameover;
 bool win;
 bool karam_mode;
+time_t start;
+time_t end;
 irrklang::ISoundEngine* engine;
 
 
@@ -437,7 +440,8 @@ struct Ball{
                 delta_x = 0;
             if (fabs(delta_z) < 1e-4)
                 delta_z = 0;
-                
+            
+            
             
             // collision detection 
             for (int i=0;i  < /*blocks*/ 26; i++){
@@ -456,21 +460,29 @@ struct Ball{
             
             for(int i=0;i<18;i++){
                 
-                if((( x<holes[i].x+0.9)&&( x>holes[i].x-0.9))&&(( z<holes[i].z+0.9)&&(z>holes[i].z-0.9)) & !karam_mode){
-                    x=holes[i].x;
-                    z=holes[i].z;
+                if((( x<holes[i].x+0.9)&&( x>holes[i].x-0.9))&&(( z<holes[i].z+0.9)&&(z>holes[i].z-0.9))){
+                    
                     
                     if(holes[i].finish){
+                        x=holes[i].x;
+                        z=holes[i].z;
                         win = true;
                         engine->setSoundVolume(1);
                         printf(">>>>>>>> Win\n");
                         engine->play2D("/sounds/gameover.wav");
-                    }else{
+                        gameover=true;
+                        end = time(NULL);
+                    }
+                    if(!karam_mode){
+                        x=holes[i].x;
+                        z=holes[i].z;
                         engine->setSoundVolume(1);
                         printf(">>>>>>>> Lost\n");
                         engine->play2D("/sounds/lost.wav");
+                        gameover=true;
+                        end = time(NULL);
                     }
-                    gameover=true;
+                    
                 }
             }
         }else {
@@ -493,8 +505,8 @@ struct Ball{
         double ang = atan(rot_z/rot_x);
         double rot = rot_x / cos(ang);
         
-//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
-//        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
+        //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+        //        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
         glRotatef(rot_z,1,0,0);
         glRotatef(rot_x,0,0,-1);
         
@@ -514,6 +526,40 @@ struct Ball{
     }
 };
 Ball ball = {/*weight*/2.0, -14, 0, -22, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0,-2};
+
+
+string convertInt(int number)
+{
+    stringstream ss; 
+    ss<< number;//add number to the stream
+    return ss.str();//return a string with the contents of the stream
+}
+
+void render(string s,int w_l_n) {
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, 1204, 768, 0, -1000, 1000);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    switch (w_l_n) {
+        case 0:glColor3f(0.0f, 0.0f, 0.0f);
+            break;
+            
+        case 1:glColor3f(0.0f, 1.0f, 0.0f);
+            break;
+            
+        case 2:glColor3f(1.0f, 0.0f, 0.0f);
+            break;
+            
+    }
+    glRasterPos2f(25,25);
+    for(int i =0;i<s.size();i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, s[i]);
+    }
+    
+    
+}
 
 void display(void)
 {
@@ -535,13 +581,13 @@ void display(void)
     glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
     glEnable(GL_DEPTH_TEST);
     glLoadIdentity();
-//    gluLookAt(0.0,85.0,0.1, // eye
-//              0.0,0.0,0.0,
-//              0.0, 1.0, 0.0); // normal
-    
-    gluLookAt(ball.x - ball.delta_x ,15,ball.z - ball.delta_z, // eye
-              ball.x,ball.y,ball.z,
+    gluLookAt(0.0,85.0,0.1, // eye
+              0.0,0.0,0.0,
               0.0, 1.0, 0.0); // normal
+    
+    // gluLookAt(ball.x - ball.delta_x ,15,ball.z - ball.delta_z, // eye
+    //         ball.x,ball.y,ball.z,
+    //       0.0, 1.0, 0.0); // normal
     
     glRotatef(camera_x, 1.0, 0.0, .0);
     glRotatef(camera_y, 0.0, 1.0, .0);
@@ -570,6 +616,18 @@ void display(void)
     ball.draw();
     
     glPopMatrix(); // end everything
+    glDisable(GL_LIGHTING);
+    if(!gameover){
+        render("Time Elapsed :" +convertInt( time(NULL)-start),0);
+    }
+    else{
+        if(win)
+            render("Game Over @ :" +convertInt(end-start),1);
+        else {
+            render("Game Over @ :" +convertInt(end-start),2);
+        }
+    }
+    glEnable(GL_LIGHTING);
     glFlush();
 }
 //<<<<<<<<<<<<<<<<<<<<<< main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -604,7 +662,7 @@ int main(int argc, char **argv)
     glClearColor(1.0f, 1.0f, 1.0f,0.0f); // background is white
 	glutIdleFunc(anim);
     glViewport(0, 0, WINDOW_H, WINDOW_W);
-    
+    start = time(NULL);
     glutMainLoop();
     engine->drop(); // delete engine
 }
@@ -648,8 +706,9 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             ball.delta_z = 0;
             ball.rot_x = 0;
             ball.rot_z = 0;
-            gameover=false;
             ball.rad = 1;
+            gameover=false;
+            start = time(NULL);
             break;
     }
 }
