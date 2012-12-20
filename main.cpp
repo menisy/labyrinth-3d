@@ -396,7 +396,9 @@ struct Ball{
         if (hitx && hitz){
             if (lastblockcollision != index ||lastblockcollision ==-2){
                 if(pow(delta_x,2)>pow(0.01,2) ||pow(delta_z,2)>pow(0.01,2)){
+                    engine->setSoundVolume(sqrt(pow(delta_x,2)+pow(delta_z,2))*3);
                     engine->play2D("/sounds/hit.wav");
+                    
                 }
             }
             if (bhitz)
@@ -438,7 +440,7 @@ struct Ball{
                 collide(&blocks[i],i);
             }
             
-//            printf("%f, %f, %f, %f\n", delta_x,delta_z, acc_x, acc_z);
+            //            printf("%f, %f, %f, %f\n", delta_x,delta_z, acc_x, acc_z);
             x += delta_x;
             z += delta_z;
             
@@ -456,9 +458,11 @@ struct Ball{
                     
                     if(holes[i].finish){
                         win = true;
+                        engine->setSoundVolume(1);
                         printf(">>>>>>>> Win\n");
                         engine->play2D("/sounds/gameover.wav");
                     }else{
+                        engine->setSoundVolume(1);
                         printf(">>>>>>>> Lost\n");
                         engine->play2D("/sounds/lost.wav");
                     }
@@ -486,10 +490,10 @@ struct Ball{
         double rot = rot_x / cos(ang);
         
         //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
-//        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
+        //        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
         glRotatef(rot_x,0,0,-1);
         glRotatef(rot_z,1,0,0);
-
+        
         
         GLUquadricObj * qobj;    
         qobj = gluNewQuadric();
