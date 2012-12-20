@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "TextureLoader.h"
+#include "irrKlang.h"
 
 using namespace std;
 
@@ -25,10 +26,11 @@ GLuint platformTexture;
 GLuint ballTexture;
 GLuint holeTexture;
 GLuint blockTexture;
+GLuint finishTexture;
 bool gameover;
 bool win;
 bool karam_mode;
-
+irrklang::ISoundEngine* engine;
 
 
 
@@ -79,7 +81,7 @@ struct Hole{
         if(!finish){
             glBindTexture(GL_TEXTURE_2D, holeTexture);
         }else{
-            glBindTexture(GL_TEXTURE_2D, ballTexture);
+            glBindTexture(GL_TEXTURE_2D, finishTexture);
         }
         glTranslated(x,0.1 ,z);
         glRotated(90, 1, 0, 0);
@@ -232,8 +234,11 @@ struct Block{
         glPopMatrix();
     }
 };
-Block blocks[22] ={
-    
+Block blocks[26] ={
+    {17.5,0,3,48},
+    {-17.5,0,3,48},
+    {0,-25.5,38,3,true},
+    {0,25.5,38,3,true},
     {-14,-19,4,2,true},
     {-7,-18,2,12,false},
     {-4,-17,6,2,true},
@@ -327,17 +332,8 @@ struct Platform{
         
         glPopMatrix(); // end platform
         //Maze
-        //MazeSides
-        Block sideR = {17.5,0,3,48};
-        Block sideL = {-17.5,0,3,48};
-        Block sideT = {0,-25.5,38,3,true};
-        Block sideB = {0,25.5,38,3,true};
-        sideR.draw();
-        sideL.draw();
-        sideT.draw();
-        sideB.draw();
         
-        for(int i = 0; i<22;i++){
+        for(int i = 0; i<26;i++){
             Block b = blocks[i];
             b.draw();
         }
@@ -370,8 +366,8 @@ struct Ball{
     double delta_x, delta_y, delta_z;
     double rot_x;
     double rot_z;
-    
-    void collide(Block *b){
+    int lastblockcollision;
+    void collide(Block *b,int index){
         
         float bx = b->x;
         float bz = b->z;
@@ -398,12 +394,21 @@ struct Ball{
         }
         
         if (hitx && hitz){
-//            printf("%d, %d, %d, %d\n", hitx, hitz, bhitx, bhitz);
+            if (lastblockcollision != index ||lastblockcollision ==-2){
+                if(pow(delta_x,2)>pow(0.01,2) ||pow(delta_z,2)>pow(0.01,2)){
+                    engine->play2D("/sounds/hit.wav");
+                }
+            }
             if (bhitz)
                 delta_x = -1 * ELASTICITY * delta_x;
             if (bhitx)
                 delta_z = -1 * ELASTICITY * delta_z;
             
+            lastblockcollision = index;
+            return;
+        }
+        if(pow(delta_x,2)>pow(0.01,2) && pow(delta_z,2)>pow(0.01,2)){
+            lastblockcollision =-1;
         }
         
     }
@@ -421,36 +426,40 @@ struct Ball{
             
             double acc_z = (GRAV-FRICTION*GRAV) * sin(p.pitch * PI/180)/(weight);
             
+            
+            
             delta_x += acc_x;
             //        delta_y = acc_y;
             delta_z += acc_z;
             
-//            printf("%f, %f, %f, %f\n", x,z, delta_x, delta_z);
+            
+            //            printf("%f, %f, %f, %f\n", x,z, delta_x, delta_z);
             
             // Collision detection
             // platform
             
-            if (x + rad + delta_x < 17.5 - 1.5 && x - rad + delta_x > -1 * 17.5 + 1.5){
-//                x += delta_x;
-            }else{
-                delta_x = -1 * ELASTICITY * delta_x;
-                x +=delta_x;
+            //            if (x + rad + delta_x < 17.5 - 1.5 && x - rad + delta_x > -1 * 17.5 + 1.5){
+            //                //                x += delta_x;
+            //            }else{
+            //                delta_x = -1 * ELASTICITY * delta_x;
+            //                x +=delta_x;
+            //            }
+            //            
+            //            if (z + rad + delta_z < 25.5 - 1.5 && z - rad +delta_z > -1 * 25.5+1.5){
+            //                //                z += delta_z;
+            //            }else{
+            //                delta_z = -1 * ELASTICITY * delta_z;
+            //                z += delta_z;
+            //            }
+            //            
+            for (int i=0;i  < /*blocks*/ 26; i++){
+                collide(&blocks[i],i);
             }
             
-            if (z + rad + delta_z < 25.5 - 1.5 && z - rad +delta_z > -1 * 25.5+1.5){
-//                z += delta_z;
-            }else{
-                delta_z = -1 * ELASTICITY * delta_z;
-                z += delta_z;
-            }
-            
-            for (int i=0;i  < /*blocks*/ 22; i++){
-                collide(&blocks[i]);
-            }
-            
-            
+            printf("%f, %f, %f, %f\n", delta_x,delta_z, acc_x, acc_z);
             x += delta_x;
             z += delta_z;
+            
             y = 0.0;
             // end platform
             
@@ -466,15 +475,16 @@ struct Ball{
                     if(holes[i].finish){
                         win = true;
                         printf(">>>>>>>> Win\n");
+                        engine->play2D("/sounds/gameover.wav");
                     }else{
                         printf(">>>>>>>> Lost\n");
+                        engine->play2D("/sounds/lost.wav");
                     }
                     gameover=true;
                 }
             }
         }else {
-            y=-0.4;
-            rad=0.85;
+            rad-=0.01;
         }
     }
     
@@ -493,11 +503,11 @@ struct Ball{
         double ang = atan(rot_z/rot_x);
         double rot = rot_x / cos(ang);
         
-//        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
+        //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
         glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
-//        glRotatef(rot_x,0,0,-1);
-//        glRotatef(rot_z,1,0,0);
-    
+        //        glRotatef(rot_x,0,0,-1);
+        //        glRotatef(rot_z,1,0,0);
+        
         
         GLUquadricObj * qobj;    
         qobj = gluNewQuadric();
@@ -513,7 +523,7 @@ struct Ball{
         
     }
 };
-Ball ball = {/*weight*/2.0, -14, 0, -22, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0};
+Ball ball = {/*weight*/2.0, -14, 0, -22, /*rad*/1.0, 0.0, 0.0, 0.0, 0, 0,-2};
 
 void display(void)
 {
@@ -527,6 +537,7 @@ void display(void)
     
     double factor = 1.0;
     glOrtho(10/factor, 10/factor, -10/factor, -10/factor, 0.1, 500);
+    
     glMatrixMode(GL_MODELVIEW); // position and aim the camera
     glEnable( GL_LINE_SMOOTH );
     glEnable( GL_POLYGON_SMOOTH );
@@ -570,6 +581,11 @@ void display(void)
 //<<<<<<<<<<<<<<<<<<<<<< main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 int main(int argc, char **argv)
 {
+    //Sound Engine
+    engine = irrklang::createIrrKlangDevice();
+    
+    if (!engine)
+        return 0;
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH );
@@ -582,7 +598,7 @@ int main(int argc, char **argv)
     ballTexture = loadTexture("/pngs/chess_texture.png",1200,1200);
     holeTexture = loadTexture("/pngs/holes_texture.png",200,200);
     blockTexture= loadTexture("/pngs/block_texture.png",200,200);
-    
+    finishTexture= loadTexture("/pngs/finish_texture.png",200,200);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -596,6 +612,7 @@ int main(int argc, char **argv)
     glViewport(0, 0, WINDOW_H, WINDOW_W);
     
     glutMainLoop();
+    engine->drop(); // delete engine
 }
 
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
@@ -628,6 +645,7 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             break;
         case 'k':
             karam_mode = !karam_mode;
+            
             break;
         case 'r':
             ball.x = -14;
@@ -637,6 +655,7 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             ball.rot_x = 0;
             ball.rot_z = 0;
             gameover=false;
+            ball.rad = 1;
             break;
     }
 }
