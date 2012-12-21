@@ -16,7 +16,7 @@ using namespace std;
 #define WINDOW_W 1024
 #define WINDOW_H 768
 #define ELASTICITY 0.2// max 1.0
-#define FRICTION 0.5 // max 1.0
+#define FRICTION 0.7 // max 1.0
 
 void anim(void);
 void myKeyboard(unsigned char thekey,int mouseX,int mouseY);
@@ -30,7 +30,7 @@ GLuint blockTexture;
 GLuint finishTexture;
 bool gameover;
 bool win;
-bool karam_mode;
+bool KR_mode;
 time_t start;
 time_t end;
 irrklang::ISoundEngine* engine;
@@ -274,10 +274,6 @@ struct Platform{
         glPushMatrix(); // world
         glRotatef(roll, 0.0, 0.0, -1.0);
         glRotatef(pitch, 1.0, 0.0, 0.0);
-        glPushMatrix();
-        glScalef(32, 1, 48);
-        glutWireCube(1);
-        glPopMatrix();
         glPushMatrix(); // platform
         glScaled(width, 1, width);
         glTranslated(0, -0.5, 0);
@@ -473,7 +469,7 @@ struct Ball{
                         gameover=true;
                         end = time(NULL);
                     }
-                    if(!karam_mode){
+                    if(!KR_mode){
                         x=holes[i].x;
                         z=holes[i].z;
                         engine->setSoundVolume(1);
@@ -502,8 +498,8 @@ struct Ball{
         
         
         // FIXME put both on only one rotatation
-        double ang = atan(rot_z/rot_x);
-        double rot = rot_x / cos(ang);
+        //        double ang = atan(rot_z/rot_x);
+        //        double rot = rot_x / cos(ang);
         
         //        printf("%.3f, %.3f\n", rot*cos(ang), rot*sin(ang) );
         //        glRotatef(rot, sin(ang), 0.0, -1 * cos(ang));
@@ -585,9 +581,9 @@ void display(void)
               0.0,0.0,0.0,
               0.0, 1.0, 0.0); // normal
     
-    // gluLookAt(ball.x - ball.delta_x ,15,ball.z - ball.delta_z, // eye
-    //         ball.x,ball.y,ball.z,
-    //       0.0, 1.0, 0.0); // normal
+    //    gluLookAt(ball.x - ball.delta_x ,15,ball.z - ball.delta_z, // eye
+    //              ball.x,ball.y,ball.z,
+    //              0.0, 1.0, 0.0); // normal
     
     glRotatef(camera_x, 1.0, 0.0, .0);
     glRotatef(camera_y, 0.0, 1.0, .0);
@@ -605,8 +601,6 @@ void display(void)
     
     glPushMatrix(); // everything
     
-    glColor3f(0.0,0,0);
-    glutWireCube(50);
     
     
     platform.draw();
@@ -696,7 +690,7 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             camera_z= (int)camera_z %360;
             break;
         case 'k':
-            karam_mode = !karam_mode;
+            KR_mode = !KR_mode;
             
             break;
         case 'r':
