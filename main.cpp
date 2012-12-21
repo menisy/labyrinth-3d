@@ -535,7 +535,7 @@ void render(string s,int w_l_n) {
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, 1204, 768, 0, -1000, 1000);
+    glOrtho(0, 1024, 768, 0, -1000, 1000);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     switch (w_l_n) {
@@ -702,6 +702,7 @@ void myKeyboard(unsigned char thekey,int mouseX,int mouseY){
             ball.rot_z = 0;
             ball.rad = 1;
             gameover=false;
+            win = false;
             start = time(NULL);
             break;
     }
